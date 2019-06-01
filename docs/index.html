@@ -1,1 +1,301 @@
-<h2>hello, mesmer xx</h2>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>demo</title>
+    <style>
+        html{
+            height: 100%;
+            overflow:hidden;
+            font-weight:100;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1em;
+            /*letter-spacing:-0.03em;*/
+            height: 100%;
+            margin: 0;
+        }
+        svg#control {
+            width: 40%;
+            height: 40%;
+            position:relative;
+            left: 23%;
+            top: 30%;
+        }
+        svg.background {
+            width: 100%;
+            height: 100%;
+            position:absolute;
+            z-index: -1;
+        }
+        svg Text {
+            font-size: 0.25em;
+            text-anchor: middle;
+            letter-spacing:-0.03em;
+        }
+
+        svg .bigText {
+            font-size: 0.25em;
+            font-weight:700;
+        }
+
+        svg mask rect {
+            fill: rgba(255, 255, 255, 1);
+        }
+        svg > rect {
+            fill: white;
+            -webkit-mask: url(#mask);
+            mask: url(#mask);
+        }
+        body {
+            /*背景颜色渐变*/
+            /*background: linear-gradient(0deg, #e55d87, #5fc3e4);*/
+            background-image: linear-gradient( 135deg, #FFCF71 10%, #2376DD 100%);
+            background-size: 100% 100%;
+            /*animation: Gradient 4s linear infinite;*/
+        }
+        @keyframes Gradient {
+            /*0%{background-position:50% 0%}*/
+            /*50%{background-position:50% 100%}*/
+            /*100%{background-position:50% 0%}*/
+            0%{background-image:linear-gradient( 135deg, #FFCF71 10%, #2376DD 100%)}
+            /*50%{background-image: linear-gradient( 135deg, #FFD26F 10%, #3677FF 100%);}*/
+            50%{background-image: linear-gradient( 135deg, #FAD7A1 10%, #2376DD 100%);}
+        }
+
+        .content{
+            float: left;
+            width: 100%;
+            height: 50%;
+            z-index: 10;
+            border-bottom:1px #000000 solid;
+        }
+
+        .list-item {
+            display: inline-block;
+            box-sizing: content-box;
+            margin: 0;
+            padding: 0;
+            box-shadow: 1px 2px 4px 0px rgba(0,0,0,0.25);
+            width:24.8%;
+            height: 50vh;
+			}
+        .left{
+            float: left;
+            border-right:1px #000000 solid;
+        }
+        .right{
+            float: right;
+            border-left:1px #000000 solid;
+        }
+
+        #canvas-frame {
+            position:absolute;
+            /*top:10vh;*/
+            left:12.5vw;
+            width: 75vw;
+            height: 99vh;
+            z-index: 5;
+        }
+        .nextCanvas{
+            /*background-color: aquamarine;*/
+            text-align: center;
+        }
+
+        @keyframes bounce-down {
+            25% {transform: translateY(-3px);}
+            50%{transform: translateY(0);}
+            75% {transform: translateY(3px);}
+            100% {transform: translateY(0);}
+        }
+        .arrow{
+            position: relative;
+            top:48%;
+            width: 16%;
+            left:2vw;
+            animation: bounce-down 1s linear infinite;
+        }
+
+        svg .smallTxt{
+            font-size: 0.2em;
+            font-style: initial;
+            letter-spacing: 0em;
+        }
+
+        .option-item{
+             width: 100%;
+             height: 20%;
+         }
+
+
+    </style>
+</head>
+<body>
+
+    <div id="canvas-frame"></div>
+
+    <script src="./static/js/support/three.js" ></script>
+    <script src="./static/js/support/d3.v4.min.js"></script>
+    <!-- <script src="./static/js/support/d3-threeD.js"></script> -->
+    <script src="./static/js/support/OrbitControls.js" ></script>
+    <!-- <script src="./static/js/support/cannon.js"></script> -->
+    <!-- <script src="./static/js/support/DragControls.js"></script> -->
+
+    <!-- <script src="./static/js/GraphStructure.js"></script> -->
+    <script src="./static/js/objSelection.js"></script>
+    <!-- <script src="./static/js/filmNum.js"></script> -->
+    <!-- <script src="./static/js/viz3d.js"></script> -->
+
+    <script type="text/javascript">
+
+        var data = [{'name': 'Drama', 'length': 25}, {'name': 'Crime', 'length': 6}, {'name': 'Thriller', 'length': 6}, {'name': 'History', 'length': 5}, {'name': 'Biography', 'length': 5}, {'name': 'Adventure', 'length': 4}, {'name': 'Comedy', 'length': 3}, {'name': 'Romance', 'length': 3}, {'name': 'War', 'length': 2}, {'name': 'Action', 'length': 2}, {'name': 'Western', 'length': 2}, {'name': 'Fantasy', 'length': 1}, {'name': 'Musical', 'length': 1}];
+
+
+        var color = d3.interpolate(d3.color('#FFCF71'), d3.color('#2376DD'));//颜色插值函数，网页背景色
+
+        var threeDiv = document.getElementById( 'canvas-frame' );
+        var renderer = new THREE.WebGLRenderer( {antialias: true, alpha: true} );
+        renderer.setClearColor( 0xffffff, 0 );
+
+        var width = this.threeDiv.clientWidth;
+        var height = this.threeDiv.clientHeight;
+        renderer.setSize(width, height);
+        threeDiv.appendChild(renderer.domElement);
+
+        var scene = new THREE.Scene();
+
+        var group = new THREE.Object3D();
+        scene.add(this.group);
+
+        scene.userData.element = threeDiv;
+
+        var camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
+        camera.position.x = 0;
+        camera.position.y = 100;
+        camera.position.z = 300;
+        camera.lookAt(group.position);
+        scene.add(camera);
+        scene.userData.camera = camera;
+
+        var light = new THREE.DirectionalLight(0xffffff, 1.0, 0);
+        light.position.set(-100, 500, 200);
+        scene.add(light);
+
+        var aLight = new THREE.AmbientLight( 0xaaaaaa );
+        scene.add( aLight );
+
+        var orbitControls = new THREE.OrbitControls(scene.userData.camera, scene.userData.element);
+        orbitControls.target = group.position;//控制焦点
+        orbitControls.autoRotate = true;//自动旋转
+        scene.userData.controls = orbitControls;
+
+        initObject();
+        ObjectSelection();
+        render();
+
+        function render()
+        {
+            scene.userData.controls.update();
+
+            object_selection.render(group, scene.userData.camera);
+            
+            renderer.render(scene, scene.userData.camera);
+            requestAnimationFrame(render);
+        }
+
+        initObject(){
+            
+            var options = {
+                depth: 20,//厚度
+                bevelThickness: 1,
+                bevelSize: 0.5,
+                bevelSegments: true,
+                bevelEnabled: 3,
+                curveSegments: 12,
+                steps: 1
+            };
+
+            //计算总值，以计算出角度比例
+            var sum = 0;
+            for(let i = 0; i<.data.length; i++)
+                sum += data[i].length;
+            var startAngle = 0, endAngle = 0;
+
+            
+            for(var i in data) {
+                endAngle += data[i].length/sum*Math.PI*2;
+
+                var material = new THREE.MeshPhongMaterial({
+                    color: color(endAngle/Math.PI/2),
+                    side: THREE.DoubleSide,
+                    wireframe: true,
+                });
+                var circle = drawShape(startAngle, endAngle-0.03);
+                startAngle = endAngle;
+
+                var geo = new THREE.ExtrudeGeometry(circle, options);
+
+                var mesh = new THREE.Mesh(geo, material);
+                mesh.rotation.x = -Math.PI/6;
+                // mesh.material.wireframe = true;
+                mesh.userData.length = data[i].length;
+                mesh.userData.name = data[i].name;
+                mesh.userData.ratio = (data[i].length/sum*100).toFixed(2);
+
+                group.add(mesh);
+            }
+        }
+
+        function drawShape(startAngle, endAngle) {
+
+            var shape = new THREE.Shape();
+            shape.moveTo(0, 0);//当前位置
+            shape.lineTo(0, 0);
+            shape.moveTo(0, 0);
+            shape.arc(0, 0, 75, endAngle, startAngle, true);
+
+            return shape;
+        }
+
+        function ObjectSelection(){
+            var object_selection = new THREE.ObjectSelection({//个人封装的js，three.js官方库中无
+                domElement: scene.userData.element,//渲染区域
+                selected: function(selectObj) {//selectObj为选取返回对象
+                  // 显示信息，此处为个性化处理，该函数会作为传入objsel.js中作为处理函数
+
+                },
+                clicked: function(selectObj) {//点击事件
+                    if(selectObj !== null) {
+
+                  } else {
+
+                  }
+                },
+                mousedown: function(selectObj) {//点击事件
+                    // obj.material.color.setHex( Math.random() * 0xe0e0e0 );
+                    if(selectObj !== null) {//判断是否为空，objsel.js中有对应
+                        let mesh = selectObj.object;
+                        let point = selectObj.point;
+                        mesh.material.color = new THREE.Color("rgb(220,76,65)");
+                        mesh.material.shininess = 100;
+                        mesh.position.set(point.x/2, point.y/2, point.z/2);
+
+                        // document.getElementById('movieType').textContent = mesh.userData.name + ' ' + mesh.userData.length + '部';
+                        // document.getElementById('ratio').textContent = mesh.userData.ratio +'  %';
+                  } else {
+                    // delete info_text.select;//若无选择对象则删除显示变量等等
+                  }
+                },
+                mouseup: function(selectObj) {//点击事件
+                    let mesh = selectObj.object;
+                    let point = selectObj.point;
+                    mesh.material.color = new THREE.Color('#ffc15e');
+                    mesh.material.shininess = 30;
+                    mesh.position.set(0, 0, 0);
+                }
+              });
+        }
+    </script>
+
+</body>
+</html>
