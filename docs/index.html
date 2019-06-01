@@ -1,22 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>demo-pie</title>
+    <title>pie</title>
     <style>
         html{
             overflow:hidden;
-        }
-        body {
-            margin: 0;
-            background: linear-gradient( 0deg, #FFCF71 10%, #2376DD 100%);
-            background-size: 100% 100%;
 	    font-size: 30;
         }
         #canvas-frame {
             position:absolute;
             width: 100vw;
             height: 100vh;
-            z-index: -1;
         }
         #interaction{
             position:absolute;
@@ -29,13 +23,12 @@
     </style>
 </head>
 <body>
-
     <div id="canvas-frame"></div>
     <div id="interaction">
         <p id="movieType"></p>
         <p id="ratio"></p>
     </div>
-
+	
     <script src="./static/js/support/three.js" ></script>
     <script src="./static/js/support/d3.v4.min.js"></script>
     
@@ -43,10 +36,7 @@
     <script src="./static/js/objSelection.js"></script>
    
     <script type="text/javascript">
-
         var data = [{'name': 'Drama', 'length': 25}, {'name': 'Crime', 'length': 6}, {'name': 'Thriller', 'length': 6}, {'name': 'History', 'length': 5}, {'name': 'Biography', 'length': 5}, {'name': 'Adventure', 'length': 4}, {'name': 'Comedy', 'length': 3}, {'name': 'Romance', 'length': 3}, {'name': 'War', 'length': 2}, {'name': 'Action', 'length': 2}, {'name': 'Western', 'length': 2}, {'name': 'Fantasy', 'length': 1}, {'name': 'Musical', 'length': 1}];
-
-
         var color = d3.interpolate(d3.color('#FFCF71'), d3.color('#2376DD'));//颜色插值函数，网页背景色
 
         var threeDiv = document.getElementById( 'canvas-frame' );
@@ -101,7 +91,6 @@
         }
 
         function initObject(){
-            
             var options = {
                 depth: 20,//厚度
                 bevelThickness: 1,
