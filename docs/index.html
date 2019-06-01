@@ -190,6 +190,7 @@
         scene.userData.controls = orbitControls;
 
         initObject();
+	var object_selection;
         ObjectSelection();
         render();
 
@@ -258,7 +259,7 @@
         }
 
         function ObjectSelection(){
-            var object_selection = new THREE.ObjectSelection({//个人封装的js，three.js官方库中无
+            object_selection = new THREE.ObjectSelection({//个人封装的js，three.js官方库中无
                 domElement: scene.userData.element,//渲染区域
                 selected: function(selectObj) {//selectObj为选取返回对象
                   // 显示信息，此处为个性化处理，该函数会作为传入objsel.js中作为处理函数
