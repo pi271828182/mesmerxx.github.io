@@ -108,7 +108,7 @@
         function initObject(){
             var linear = d3.scaleLinear()
                             .domain([10000, 70000])
-                            .range([0, 150]);
+                            .range([0, 140]);
             for(var i in data) {
                 var material = new THREE.MeshBasicMaterial( {
                     color: color(linear(data[i].length)/150),
