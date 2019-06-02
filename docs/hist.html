@@ -81,11 +81,21 @@
         orbitControls.autoRotate = true;//自动旋转
         scene.userData.controls = orbitControls;
 
+        initGrid();
         initObject();
         layout();
         var object_selection;
         ObjectSelection();
         render();
+
+        function initGrid(){
+            //平面
+            var gridXZ = new THREE.GridHelper(200, 10, 0xa23131, 0xa23131);//4个参数分别是：网格宽度、等分数、中心线颜色，网格线颜色
+            gridXZ.position.set( 0,0,0 );
+            gridXZ.material.linewidth = 10;
+            scene.add(gridXZ);
+        }
+
 
         function render()
         {
@@ -141,11 +151,12 @@
                 selected: function(selectObj) {//selectObj为选取返回对象
                     // 显示信息，此处为个性化处理，该函数会作为传入objsel.js中作为处理函数
                     if(selectObj !== null) {//判断是否为空，objsel.js中有对应
-                    var meshObj = selectObj.object;
-                    meshObj.material.color = new THREE.Color("rgb(220,76,65)");
+                        var meshObj = selectObj.object;
+                        meshObj.material.color = new THREE.Color("rgb(220,76,65)");
 
-                    document.getElementById('year').textContent = meshObj.userData.name + ' 年度';
-                    document.getElementById('screenNum').textContent = meshObj.userData.num +' 块屏';
+                        document.getElementById('year').textContent = meshObj.userData.name + ' 年度';
+                        document.getElementById('screenNum').textContent = meshObj.userData.num +' 块屏';
+                    }
                 },
                 clicked: function(selectObj) {//点击事件
                     if(selectObj !== null) {
