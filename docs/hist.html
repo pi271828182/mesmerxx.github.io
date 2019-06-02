@@ -25,8 +25,8 @@
 <body>
     <div id="canvas-frame"></div>
     <div id="interaction">
-        <p id="movieType"></p>
-        <p id="ratio"></p>
+        <p id="year"></p>
+        <p id="screenNum"></p>
     </div>
 	
     <script src="./static/js/support/three.js" ></script>
@@ -36,7 +36,13 @@
     <script src="./static/js/objSelection.js"></script>
    
     <script type="text/javascript">
-        var data = [{'name': 'Drama', 'length': 25}, {'name': 'Crime', 'length': 6}, {'name': 'Thriller', 'length': 6}, {'name': 'History', 'length': 5}, {'name': 'Biography', 'length': 5}, {'name': 'Adventure', 'length': 4}, {'name': 'Comedy', 'length': 3}, {'name': 'Romance', 'length': 3}, {'name': 'War', 'length': 2}, {'name': 'Action', 'length': 2}, {'name': 'Western', 'length': 2}, {'name': 'Fantasy', 'length': 1}, {'name': 'Musical', 'length': 1}];
+        var data = [{name:'2012', length: 13118},
+                    {name:'2013', length: 18195},
+                    {name:'2014', length: 23592},
+                    {name:'2015', length: 31627},
+                    {name:'2016', length: 41056},
+                    {name:'2017', length: 50776},
+                    {name:'2018', length: 60079}];
         var color = d3.interpolate(d3.color('#FFCF71'), d3.color('#2376DD'));//d3颜色插值函数，渐变色
 
         var threeDiv = document.getElementById( 'canvas-frame' );
@@ -76,6 +82,7 @@
         scene.userData.controls = orbitControls;
 
         initObject();
+        layout();
         var object_selection;
         ObjectSelection();
         render();
@@ -89,89 +96,71 @@
         }
 
         function initObject(){
-            var options = {
-                depth: 20,//厚度
-                bevelThickness: 1,
-                bevelSize: 0.5,
-                bevelSegments: true,
-                bevelEnabled: 3,
-                curveSegments: 12,
-                steps: 1
-            };
-
-            //计算总值，以计算出角度比例
-            var sum = 0;
-            for(let i = 0; i<data.length; i++)
-                sum += data[i].length;
-            var startAngle = 0, endAngle = 0;
-
+            var linear = d3.scaleLinear()
+                            .domain([10000, 70000])
+                            .range([0, 150]);
             for(var i in data) {
-                endAngle += data[i].length/sum*Math.PI*2;
-
-                var material = new THREE.MeshPhongMaterial({
-                    color: color(endAngle/Math.PI/2),
-                    side: THREE.DoubleSide,
-                    wireframe: true,
+                var material = new THREE.MeshBasicMaterial( {
+                    color: color(linear(data[i].length)/150),
+                    opacity: 1
                 });
-                var circle = drawShape(startAngle, endAngle-0.03);
-                startAngle = endAngle;
-
-                var geo = new THREE.ExtrudeGeometry(circle, options);
-
-                var mesh = new THREE.Mesh(geo, material);
-                mesh.rotation.x = -Math.PI/6;
-                // mesh.material.wireframe = true;
+                var cylinder = new THREE.CylinderGeometry(10, 10, linear(data[i].length));
+                var mesh = new THREE.Mesh(cylinder, material);
                 mesh.userData.length = data[i].length;
+                mesh.material.wireframe = true;
                 mesh.userData.name = data[i].name;
-                mesh.userData.ratio = (data[i].length/30*100).toFixed(2);
+                mesh.userData.num = data[i].length;
 
                 group.add(mesh);
+
+                data[i].length = Math.ceil(linear(data[i].length));
+
             }
         }
 
-        function drawShape(startAngle, endAngle) {
+        function layout(){
+            var objs = group.children;//数组
 
-            var shape = new THREE.Shape();
-            shape.moveTo(0, 0);//当前位置
-            shape.lineTo(0, 0);
-            shape.moveTo(0, 0);
-            shape.arc(0, 0, 75, endAngle, startAngle, true);
+            var radius = 40;
+            var angle = 0;
+            var x, z;
 
-            return shape;
+            for(var i=0;i<objs.length; i++){
+                if (objs[i].type == 'Mesh'){
+                    x = radius * Math.cos(angle);
+                    z = radius * Math.sin(angle);
+                    angle += Math.PI*2/data.length;
+                    objs[i].position.set(x, data[i].length/2, z);//因为position在几何体中心
+                }
+            }
         }
 
         function ObjectSelection(){
             object_selection = new THREE.ObjectSelection({//个人封装的js，three.js官方库中无
                 domElement: scene.userData.element,//渲染区域
                 selected: function(selectObj) {//selectObj为选取返回对象
-                  // 显示信息，此处为个性化处理，该函数会作为传入objsel.js中作为处理函数
+                    // 显示信息，此处为个性化处理，该函数会作为传入objsel.js中作为处理函数
+                    if(selectObj !== null) {//判断是否为空，objsel.js中有对应
+                    var meshObj = selectObj.object;
+                    meshObj.material.color = new THREE.Color("rgb(220,76,65)");
 
+                    document.getElementById('year').textContent = meshObj.userData.name + ' 年度';
+                    document.getElementById('screenNum').textContent = meshObj.userData.num +' 块屏';
                 },
                 clicked: function(selectObj) {//点击事件
                     if(selectObj !== null) {
 
-                  } else {
-
                   }
                 },
                 mousedown: function(selectObj) {//点击事件
-                    if(selectObj !== null) {//判断是否为空，objsel.js中有对应
-                        let mesh = selectObj.object;
-                        let point = selectObj.point;
-                        mesh.material.color = new THREE.Color("rgb(220,76,65)");
-                        mesh.material.shininess = 100;
-                        mesh.position.set(point.x/2, point.y/2, point.z/2);
-
-                        document.getElementById('movieType').textContent = mesh.userData.name + ' ' + mesh.userData.length + '部';
-                        document.getElementById('ratio').textContent = mesh.userData.ratio +'  %';
+                    if(selectObj !== null) {
+                        
                   }
                 },
                 mouseup: function(selectObj) {//点击事件
-                    let mesh = selectObj.object;
-                    let point = selectObj.point;
-                    mesh.material.color = new THREE.Color('#ffc15e');
-                    mesh.material.shininess = 30;
-                    mesh.position.set(0, 0, 0);
+                   if(selectObj !== null) {
+                        
+                  }
                 }
               });
         }
