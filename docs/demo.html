@@ -89,15 +89,14 @@
         var color = d3.interpolate(d3.color('#FFCF71'), d3.color('#2376DD'));//d3颜色插值函数，渐变色
 
         initGrid();//坐标轴
-        //initObject();//生成圆柱
-        //layout();//定位
+        initObject();//生成圆柱
+        layout();//定位
 
-        //var object_selection;//物体选择
-        //ObjectSelection();
+        var object_selection;//物体选择
+        ObjectSelection();
 
-        //render();//启动渲染
-	    renderer.render(scene, scene.userData.camera);
-
+        render();//启动渲染
+	    
         function initGrid(){
             //平面
             var gridXZ = new THREE.GridHelper(200, 10, 0xa23131, 0xa23131);//4个参数分别是：网格宽度、等分数、中心线颜色，网格线颜色
