@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>hist</title>
+    <title>demo</title>
     <style>
         html{
             overflow:hidden;
@@ -36,31 +36,25 @@
     <script src="./static/js/objSelection.js"></script>
    
     <script type="text/javascript">
-        var data = [{name:'2012', length: 13118},
-                    {name:'2013', length: 18195},
-                    {name:'2014', length: 23592},
-                    {name:'2015', length: 31627},
-                    {name:'2016', length: 41056},
-                    {name:'2017', length: 50776},
-                    {name:'2018', length: 60079}];
-        var color = d3.interpolate(d3.color('#FFCF71'), d3.color('#2376DD'));//d3颜色插值函数，渐变色
-
+        //渲染区域 
         var threeDiv = document.getElementById( 'canvas-frame' );
-        var renderer = new THREE.WebGLRenderer( {antialias: true, alpha: true} );
-        renderer.setClearColor( 0xffffff, 0 );
-
         var width = threeDiv.clientWidth;
         var height = threeDiv.clientHeight;
+
+        //渲染器
+        var renderer = new THREE.WebGLRenderer( {antialias: true, alpha: true} );
+        renderer.setClearColor( 0xffffff, 0 );
         renderer.setSize(width, height);
-        threeDiv.appendChild(renderer.domElement);
+        threeDiv.appendChild(renderer.domElement);//在Div里生成一个canvas
 
+        //场景
         var scene = new THREE.Scene();
-
-        var group = new THREE.Object3D();
+        var group = new THREE.Object3D();//用于存放圆柱
         scene.add(this.group);
 
-        scene.userData.element = threeDiv;
+        scene.userData.element = threeDiv;//自定义对象，用于存储
 
+        //相机
         var camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
         camera.position.x = 0;
         camera.position.y = 100;
@@ -69,24 +63,39 @@
         scene.add(camera);
         scene.userData.camera = camera;
 
-        var light = new THREE.DirectionalLight(0xffffff, 1.0, 0);
+        //光源
+        var light = new THREE.DirectionalLight(0xffffff, 1.0, 0);//平行光
         light.position.set(-100, 500, 200);
         scene.add(light);
 
-        var aLight = new THREE.AmbientLight( 0xaaaaaa );
+        var aLight = new THREE.AmbientLight( 0xaaaaaa );//环境光
         scene.add( aLight );
 
+        //控制器
         var orbitControls = new THREE.OrbitControls(scene.userData.camera, scene.userData.element);
         orbitControls.target = group.position;//控制焦点
         orbitControls.autoRotate = true;//自动旋转
         scene.userData.controls = orbitControls;
 
-        initGrid();
-        initObject();
-        layout();
-        var object_selection;
+        //数据
+        var data = [{name:'2012', length: 13118},
+                    {name:'2013', length: 18195},
+                    {name:'2014', length: 23592},
+                    {name:'2015', length: 31627},
+                    {name:'2016', length: 41056},
+                    {name:'2017', length: 50776},
+                    {name:'2018', length: 60079}];
+        //颜色
+        var color = d3.interpolate(d3.color('#FFCF71'), d3.color('#2376DD'));//d3颜色插值函数，渐变色
+
+        initGrid();//坐标轴
+        initObject();//生成圆柱
+        layout();//定位
+
+        var object_selection;//物体选择
         ObjectSelection();
-        render();
+
+        render();//启动渲染
 
         function initGrid(){
             //平面

@@ -43,15 +43,15 @@
         var renderer = new THREE.WebGLRenderer( {antialias: true, alpha: true} );
         renderer.setClearColor( 0xffffff, 0 );
 
-        var width = this.threeDiv.clientWidth;
-        var height = this.threeDiv.clientHeight;
+        var width = threeDiv.clientWidth;
+        var height = threeDiv.clientHeight;
         renderer.setSize(width, height);
         threeDiv.appendChild(renderer.domElement);
 
         var scene = new THREE.Scene();
 
         var group = new THREE.Object3D();
-        scene.add(this.group);
+        scene.add(group);
 
         scene.userData.element = threeDiv;
 
