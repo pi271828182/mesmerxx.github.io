@@ -76,6 +76,9 @@
                 transparent: true,
                 alphaMap:    getTexture('static/texture/earth/grey.jpg'),//透明度贴图，黑色：完全透明;白色：完全不透明
             });
+
+            var mesh = new THREE.Mesh( geometry, material );
+            scene.add(mesh);
         }
 
         //纹路加载函数
