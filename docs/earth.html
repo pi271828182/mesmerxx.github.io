@@ -36,7 +36,7 @@
 
         //相机
         var camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
-        camera.position.set(0, 100, 400);
+        camera.position.set(0, 100, 300);
         scene.add(camera);
 
         //光源
@@ -179,7 +179,7 @@
                 var sprite = createLocationSprite(locations[i].position);
                 scene.add( sprite );
 
-                var textSprite = createText(locations[i].position, locations[i].title);
+                var textSprite = createText(locations[i].position, locations[i].name);
                 scene.add( textSprite );
 
                 if(i == 0){
