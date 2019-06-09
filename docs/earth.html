@@ -64,7 +64,24 @@
         }
 
         function initObject(){
-            
+            var geometry = new THREE.SphereGeometry( 100, 32, 32 );
+
+            var material = new THREE.MeshPhongMaterial({
+                map:         getTexture('static/texture/earth/2_no_clouds_4k.jpg'),
+                bumpMap:     getTexture('static/texture/earth/elev_bump_4k.jpg'),//凹凸贴图
+                bumpScale:   1,//凹凸贴图会对材质产生多大影响。典型范围是0-1。默认值为1。
+                emissive:    new THREE.Color(0x6d3939),
+                emissiveIntensity: 0.05,
+                //wireframe:true,
+                transparent: true,
+                alphaMap:    getTexture('static/texture/earth/grey.jpg'),//透明度贴图，黑色：完全透明;白色：完全不透明
+            });
+        }
+
+        //纹路加载函数
+        function getTexture(str){//str为纹理url
+            var loader = new THREE.TextureLoader();
+            return loader.load(str);
         }
 
     </script>
