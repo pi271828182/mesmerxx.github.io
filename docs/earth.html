@@ -36,7 +36,7 @@
 
         //相机
         var camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
-        camera.position.set(0, 100, 300);
+        camera.position.set(0, 100, 350);
         scene.add(camera);
 
         //光源
@@ -44,7 +44,7 @@
         light.position.set(-100, 500, 200);
         scene.add(light);
 
-        var aLight = new THREE.AmbientLight( 0xaaaaaa );//环境光
+        var aLight = new THREE.AmbientLight( 0x666666 );//环境光
         scene.add( aLight );
 
         //控制器
