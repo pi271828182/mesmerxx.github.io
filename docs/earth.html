@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>earth-demo</title>
+    <style>
+        html{
+            overflow:hidden;
+        }
+        #canvas-frame {
+            position:absolute;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-frame"></div>
+    
+    <script src="./static/js/support/three.js" ></script>
+    <script src="./static/js/support/OrbitControls.js" ></script>
+    
+    <script type="text/javascript">
+        //渲染区域 
+        var threeDiv = document.getElementById( 'canvas-frame' );
+        var width = threeDiv.clientWidth;
+        var height = threeDiv.clientHeight;
+
+        //渲染器
+        var renderer = new THREE.WebGLRenderer( {antialias: true, alpha: true} );
+        renderer.setClearColor( 0xffffff, 0 );
+        renderer.setSize(width, height);
+        threeDiv.appendChild(renderer.domElement);//在Div里生成一个canvas
+
+        //场景
+        var scene = new THREE.Scene();
+
+        //相机
+        var camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
+        camera.position.set(0, 100, 300);
+        scene.add(camera);
+
+        //光源
+        var light = new THREE.DirectionalLight(0xffffff, 1.0, 0);//平行光
+        light.position.set(-100, 500, 200);
+        scene.add(light);
+
+        var aLight = new THREE.AmbientLight( 0xaaaaaa );//环境光
+        scene.add( aLight );
+
+        //控制器
+        var orbitControls = new THREE.OrbitControls(camera, threeDiv);
+        orbitControls.autoRotate = true;//自动旋转
+
+        
+        initObject();
+        render();//启动渲染
+	    
+        
+        function render()
+        {
+            orbitControls.update();
+            renderer.render(scene, camera);
+            requestAnimationFrame(render);
+        }
+
+        function initObject(){
+            
+        }
+
+    </script>
+
+</body>
+</html>
