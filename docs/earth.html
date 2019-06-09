@@ -53,8 +53,7 @@
 
         
         initSphere();
-        creatCurve();
-        creatText();
+        createLink();
 
         render();//启动渲染
 	    
@@ -123,7 +122,7 @@
             return sprite
         }
 
-        function creatLine(obj0, obj1, radius){
+        function createLine(obj0, obj1, radius){
             var positions = [];
             positions.push(obj0.position);
 
@@ -146,7 +145,7 @@
             var curve = new THREE.CatmullRomCurve3( positions );//Create a smooth 3d spline curve from a series of points
             //https://threejs.org/docs/#api/en/extras/curves/CatmullRomCurve3
 
-            // this.lightMove(curve);
+            lightMove(curve);
 
             var points = curve.getPoints( 50 );//从曲线中取出position，细分数为20
             var geometry = new THREE.BufferGeometry().setFromPoints( points );
@@ -156,7 +155,33 @@
             scene.add(curveObject);
         }
 
-        function creatCurve(){
+        function lightMove(curve){
+            var that = this;
+            var pointGeometry = new THREE.SphereGeometry(1, 20, 20);
+            var pointMaterial = new THREE.MeshBasicMaterial({color: 0xFFCF71});
+
+            addLightPoint();
+            function addLightPoint() {
+                var index = 0;
+                var pointMesh = new THREE.Mesh(pointGeometry, pointMaterial);
+
+                pointMesh.position.copy(curve.getPointAt(index));
+                that.scene.add(pointMesh);
+
+                function pointAnimate() {
+                    index+=0.001;
+                    if(index>= 1) {
+                        index = 0;
+                    }
+                    pointMesh.position.copy(curve.getPointAt(index));
+                    requestAnimationFrame(pointAnimate);
+                }
+                pointAnimate();
+            }
+
+        }
+
+        function createLink(){
             var radius = 100;
             var locations = [
                     {
@@ -174,6 +199,9 @@
                     }, {
                         name: '英国',
                         position: {x: -0, y: 80.19051430548129, z: 57.366479276535955},
+                    }, {
+                        name: '阿根廷',
+                        position: {x: -73.52110954085111, y: -58.84584655125052, z: 33.56042494210405},
                     }];
             var firstSprite;
             for(let i in locations){
@@ -187,15 +215,13 @@
                     firstSprite = sprite;
                 }
                 else{
-                    creatLine(firstSprite, sprite);
+                    createLine(firstSprite, sprite);
                 }
             }
 
         }
 
-        function creatText(){
-
-        }
+        
 
     </script>
 
