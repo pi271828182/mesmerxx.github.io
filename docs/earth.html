@@ -52,7 +52,10 @@
         orbitControls.autoRotate = true;//自动旋转
 
         
-        initObject();
+        initSphere();
+        creatCurve();
+        creatText();
+
         render();//启动渲染
 	    
         
@@ -63,7 +66,7 @@
             requestAnimationFrame(render);
         }
 
-        function initObject(){
+        function initSphere(){
             var geometry = new THREE.SphereGeometry( 100, 32, 32 );
 
             var material = new THREE.MeshPhongMaterial({
@@ -81,6 +84,83 @@
         function getTexture(str){//str为纹理url
             var loader = new THREE.TextureLoader();
             return loader.load(str);
+        }
+
+        function createLocationSprite(position){
+            var spriteMaterial = new THREE.SpriteMaterial({
+                map: getTexture('static/texture/sprite/snowflake7_alpha.png')
+            });
+            var sprite = new THREE.Sprite(spriteMaterial);
+
+            sprite.position.set(position.x*1.03, position.y*1.03, position.z*1.03);
+            sprite.scale.set(5,5,5);
+
+            return sprite
+
+        }
+
+        function createText(position, title){
+            let canvas = document.createElement("canvas");
+            canvas.width = 512;
+            canvas.height = 512;
+            let ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#000000";
+            ctx.font = "40px Yahei";
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(title, 256, 256, 512);
+
+            let spriteMap = new THREE.CanvasTexture(canvas);
+            spriteMap.needsUpdate = true;
+            let spriteMaterial = new THREE.SpriteMaterial({map: spriteMap});
+
+            let sprite = new THREE.Sprite(spriteMaterial);
+            sprite.scale.set(30, 30, 1);
+            
+            // let ray = camera.position.clone().sub(position).clampLength(11, 12).add(position);
+            sprite.position.copy(position);
+            return sprite
+        }
+
+        function creatCurve(){
+            var radius = 100;
+            var locations = [
+                    {
+                        name: '中国',
+                        position: {x: 75.00796918081518, y: 61.91934379181622,z: -28.073357639817498},
+                    }, {
+                        name: '美国',
+                        position: {x: -78.98949663819533, y: 59.629624022296966, z: -14.178459288876969},
+                    }, {
+                        name: '日本',
+                        position: {x: 42.3265905768655, y: 66.34106825042187, z: -70.4862920864629},
+                    }, {
+                        name: '法国',
+                        position: {x: 8.0669748999557327, y: 73.91043794076275, z: 67.27747980985468},
+                    }, {
+                        name: '英国',
+                        position: {x: -0, y: 80.19051430548129, z: 57.366479276535955},
+                    }];
+            var firstSprite;
+            for(let i in locations){
+                var sprite = createLocationSprite(locations[i].position);
+                scene.add( sprite );
+
+                var textSprite = createText(locations[i].position, locations[i].title);
+                scene.add( textSprite );
+
+                if(i == 0){
+                    firstSprite = sprite;
+                }
+                else{
+                    creatLine(firstSprite, sprite);
+                }
+            }
+
+        }
+
+        function creatText(){
+
         }
 
     </script>
