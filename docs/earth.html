@@ -26,7 +26,7 @@
         var height = threeDiv.clientHeight;
 
         //渲染器
-        var renderer = new THREE.WebGLRenderer( {antialias: true, alpha: true} );
+        var renderer = new THREE.WebGLRenderer( {antialias: true} );
         renderer.setClearColor( 0xffffff, 0 );
         renderer.setSize(width, height);
         threeDiv.appendChild(renderer.domElement);//在Div里生成一个canvas
@@ -116,7 +116,6 @@
             let sprite = new THREE.Sprite(spriteMaterial);
             sprite.scale.set(30, 30, 1);
             
-            // let ray = camera.position.clone().sub(position).clampLength(11, 12).add(position);
             sprite.position.copy(position).multiplyScalar(1.05);
             return sprite
         }
@@ -130,15 +129,15 @@
                 midVector.multiplyScalar(0.8);
             }
             positions.push(midVector);
-            if(midVector.length () < radius*1.1){
-                var midVector1 = new THREE.Vector3(51.94899521179721, 41.15592339334897, -74.2104844406552).multiplyScalar(1.2);
-                var midVector2= new THREE.Vector3(-21.648528130319804, -8.201190999766547 , -96.86507449452817).multiplyScalar(1.2);
-                var midVector3= new THREE.Vector3(-97.91601591159608, -7.8530113363611385 , -16.534424883591797).multiplyScalar(1.2);
-                positions.pop();
-                positions.push(midVector1);
-                positions.push(midVector2);
-                positions.push(midVector3);
-            }
+            // if(midVector.length () < radius*1.1){
+            //     var midVector1 = new THREE.Vector3(51.94899521179721, 41.15592339334897, -74.2104844406552).multiplyScalar(1.2);
+            //     var midVector2= new THREE.Vector3(-21.648528130319804, -8.201190999766547 , -96.86507449452817).multiplyScalar(1.2);
+            //     var midVector3= new THREE.Vector3(-97.91601591159608, -7.8530113363611385 , -16.534424883591797).multiplyScalar(1.2);
+            //     positions.pop();
+            //     positions.push(midVector1);
+            //     positions.push(midVector2);
+            //     positions.push(midVector3);
+            // }
             positions.push(obj1.position);
             
             var curve = new THREE.CatmullRomCurve3( positions );//Create a smooth 3d spline curve from a series of points
