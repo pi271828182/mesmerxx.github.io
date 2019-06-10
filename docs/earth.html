@@ -53,6 +53,7 @@
 
         initSphere();
         createLink();
+        creatAero(99);
 
         render();//启动渲染
 	    
@@ -64,6 +65,14 @@
             requestAnimationFrame(render);
         }
 
+        //大气层
+        function creatAero(radius){
+            var cloudsGeo = new THREE.SphereGeometry(radius,radius/2,radius/2);
+            var cloudsMater = new THREE.MeshPhongMaterial({map:this.getTexture('static/texture/earth/earth_clouds_2048.png'),transparent:true,opacity:1});
+            var cloudsMesh = new THREE.Mesh(cloudsGeo,cloudsMater);
+            this.group.add(cloudsMesh);
+        }
+
         function initSphere(){
             var geometry = new THREE.SphereGeometry( 100, 32, 32 );
 
@@ -71,6 +80,7 @@
                 map:         getTexture('static/texture/earth/2_no_clouds_4k.jpg'),
                 bumpMap:     getTexture('static/texture/earth/elev_bump_4k.jpg'),//凹凸贴图
                 // transparent: true,
+                emissiveIntensity: 0.05,
                 alphaMap:    getTexture('static/texture/earth/grey.jpg'),//透明度贴图，黑色：完全透明;白色：完全不透明
             });
 

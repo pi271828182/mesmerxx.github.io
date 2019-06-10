@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>earth</title>
+    <style>
+        html{
+            overflow:hidden;
+        }
+        #canvas-frame {
+            position:absolute;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-frame"></div>
+    
+    <script src="./static/js/support/three.js" ></script>
+    <script src="./static/js/support/OrbitControls.js" ></script>
+
+    <script src="./static/js/support/d3.v4.min.js"></script>
+    
+    <script src="./static/js/support/cannon.js"></script>
+    <script src="./static/js/support/DragControls.js"></script>
+
+    <script src="./static/js/GraphStructure.js"></script>
+    
+    <script type="text/javascript">
+        //渲染区域 
+        var threeDiv = document.getElementById( 'canvas-frame' );
+        var width = threeDiv.clientWidth;
+        var height = threeDiv.clientHeight;
+
+        //渲染器
+        var renderer = new THREE.WebGLRenderer( {antialias: true, alpha: true} );
+        renderer.setClearColor( 0xffffff, 0 );
+        renderer.setSize(width, height);
+        threeDiv.appendChild(renderer.domElement);//在Div里生成一个canvas
+
+        //场景
+        var scene = new THREE.Scene();
+
+        //相机
+        var camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
+        camera.position.set(0, 100, 350);
+        scene.add(camera);
+
+        //光源
+        var light = new THREE.DirectionalLight(0xffffff, 1.0, 0);//平行光
+        light.position.set(-100, 500, 200);
+        scene.add(light);
+
+        var aLight = new THREE.AmbientLight( 0x666666 );//环境光
+        scene.add( aLight );
+
+        //控制器
+        var orbitControls = new THREE.OrbitControls(camera, threeDiv);
+        orbitControls.autoRotate = true;//自动旋转
+
+        var graph;
+        var dragObjects;//存放拖拽对象mesh
+        var world;//物理对象
+        var onDrag;//是否在拖拽中
+        var colorD3 = d3.scaleOrdinal(d3.schemeCategory10);
+
+        
+        start();//启动绘制
+
+        function applyForce() {
+            var that = this;
+            var nodes = this.graph.nodes;
+            var edges = this.graph.edges;
+            if (!that.onDrag)
+            {
+                //计算质心
+                let massCenter = new THREE.Vector3(0, 0, 0);
+                nodes.forEach(value => {
+                    massCenter.add(value.pbody.position);
+                });
+                massCenter.divideScalar(nodes.length);
+                //计算向心力
+                let maxForce = 10 * massCenter.sub(new THREE.Vector3(0, 0, 0)).length();
+                let forceCenter = massCenter.negate().clampLength(maxForce, Math.ceil(maxForce));
+                //console.log(forceCenter);
+                //添加向心力
+                nodes.forEach(node => {
+                    node.pbody.force.copy(node.pbody.force.vadd(forceCenter));
+                });
+            }
+            var camera = this.scene.userData.camera;
+            nodes.forEach(value => {
+                value.body.position.copy(value.pbody.position);
+                value.body.quaternion.copy(value.pbody.quaternion);
+                //计算文本位置
+                let ray = camera.position.clone().sub(value.pbody.position).clampLength(11, 12).add(value.pbody.position);
+                value.text.position.copy(ray);
+                //添加斥力
+                nodes.forEach(node => {
+                    if (node !== value && node.pbody.type === CANNON.Body.DYNAMIC)
+                    {
+                        let distance = new THREE.Vector3().copy(node.pbody.position).distanceTo(value.pbody.position);
+                        let maxForce = 100000;
+                        let force = new THREE.Vector3().copy(node.pbody.position).sub(value.pbody.position).clampLength(maxForce / distance ** 2, Math.ceil(maxForce / distance ** 2));
+                        node.pbody.force.copy(node.pbody.force.vadd(force));
+                    }
+                });
+            });
+            edges.forEach(value => {
+                value.body.geometry.verticesNeedUpdate = true;
+            });
+        }
+
+        function drawNode(nodes) {
+            var that = this;
+            nodes.forEach((value, index) => {
+                function createText()
+                {
+                    let canvas = document.createElement("canvas");
+                    canvas.width = 512;
+                    canvas.height = 512;
+                    let ctx = canvas.getContext("2d");
+                    ctx.fillStyle = "#000000";
+                    ctx.font = "75px Yahei";
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(value.data.name, 256, 256, 512);
+                    let spriteMap = new THREE.CanvasTexture(canvas);
+                    spriteMap.needsUpdate = true;
+                    let spriteMaterial = new THREE.SpriteMaterial({map: spriteMap});
+                    let sprite = new THREE.Sprite(spriteMaterial);
+                    sprite.scale.set(30, 30, 1);
+                    that.group.add(sprite);//改
+                    value.text = sprite;
+                    sprite.data = value;
+                    return sprite
+                }
+
+                createText();
+
+                function createBody()
+                {
+                    let sphere_geometry = new THREE.SphereGeometry(10, 30, 30);
+                    if (value.data.post != 'movie') {
+                        sphere_geometry = new THREE.SphereGeometry(8, 30, 30);
+                    }
+                    let sphere_material = new THREE.MeshPhongMaterial({
+                        color: that.colorD3(Math.floor(Math.random()*10)),//that.color(Math.random()),
+                        transparent: true,
+                        opacity: 0.8,
+                        // wireframe: true
+                    });
+                    if (value.id == 0){
+                        sphere_material.color = new THREE.Color( 0xff5959 );
+                    }
+                    if (value.data.post == 'movie') {
+                        sphere_material.color = new THREE.Color( 0xf09c67 );
+                    }
+                    if (value.data.post == 'director') {
+                        sphere_material.color = new THREE.Color( 0xf09c67 );
+                    }
+                    let sphere = new THREE.Mesh(sphere_geometry, sphere_material);
+                    sphere.frustumCulled = false;
+                    {
+                        let num = nodes.length;
+                        let radius = 50 * num / 2 / Math.PI;
+                        sphere.position.set(Math.cos(2 * Math.PI / num * index) * radius, Math.sin(2 * Math.PI / num * index) * radius, 0);
+                    }
+                    that.group.add(sphere);//改
+                    that.dragObjects.push(sphere);
+                    value.body = sphere;
+                    sphere.data = value;
+                    return sphere;
+                }
+
+                let sphere = createBody();
+
+                let sphere_body = new CANNON.Body({
+                    mass: 1,
+                    shape: new CANNON.Sphere(10),
+                    linearDamping: 0.9,
+                    angularDamping: 0.9
+                });
+                sphere_body.position.copy(sphere.position);
+                sphere_body.fixedRotation = true;
+                that.world.addBody(sphere_body);
+                value.pbody = sphere_body;
+            });
+        }
+
+        function drawEdge(edges) {
+            var that = this;
+            edges.forEach((value => {
+                let material = new THREE.LineBasicMaterial({vertexColors: true, side: THREE.DoubleSide});
+                let geometry = new THREE.Geometry();
+
+                geometry.vertices.push(value.source.body.position);
+                geometry.vertices.push(value.target.body.position);
+                geometry.colors.push(value.source.body.material.color, value.target.body.material.color);
+                let line = new THREE.Line(geometry, material);
+                line.castShadow = true;
+                line.receiveShadow = true;
+                line.frustumCulled = false;
+                that.group.add(line);//改
+                value.body = line;
+
+                value.source.data.friend.push(value.target);
+                value.target.data.friend.push(value.source);
+
+                let pbodyA = value.source.pbody;
+                let pbodyB = value.target.pbody;
+                let constraint = new CANNON.DistanceConstraint(pbodyA, pbodyB, 65, 100);
+                that.world.addConstraint(constraint);
+            }));
+        }
+
+        function initObject(){
+            var aLight = new THREE.AmbientLight( 0xeeeeee );
+            this.scene.add( aLight );
+
+            var that = this;
+
+            // that.scene.userData.camera.position.z += 100;
+            that.world = new CANNON.World();
+            that.world.gravity.set(0, 0, 0);
+            that.world.solver.iterations = 20;
+
+            that.dragObjects = [];
+
+            that.graph = new GRAPHVIS.Graph();//图
+            //结点
+            for(let i=0; i<that.data.nodes.length; i++){
+                var node = new GRAPHVIS.Node(nodes[i]);
+                that.graph.nodeSet[node.id] = node;
+                that.graph.nodes.push(node);//结点加入图中
+            }
+            //边
+            var nodes_graph = that.graph.nodeSet;//改
+            for(let i=0; i<that.data.links.length; i++){
+                var startNodeId = links[i].source;
+                var endNodeId = links[i].target;
+                var edge = new GRAPHVIS.Edge(nodes_graph[startNodeId], nodes_graph[endNodeId]);
+                that.graph.edges.push(edge);
+
+                nodes_graph[startNodeId].data.friend.push(nodes_graph[endNodeId]);
+                nodes_graph[endNodeId].data.friend.push(nodes_graph[startNodeId]);
+            }
+
+            this.drawNode(this.graph.nodes);
+            this.drawEdge(this.graph.edges);
+
+
+            var controls = that.scene.userData.controls;
+            that.onDrag = false;
+            let existMouseMove = false;
+            var dragControls = new THREE.DragControls(that.dragObjects, that.scene.userData.camera, this.renderer.domElement);
+            dragControls.addEventListener('hoveron', function (event) {
+                let friends = event.object.data.data.friend;
+                for (let i in friends){
+                    friends[i].body.material.color = new THREE.Color( '#ff8364' );
+                }
+
+                controls.enabled = false;
+            });
+            dragControls.addEventListener('hoveroff', function (event) {
+                let friends = event.object.data.data.friend;
+                for (let i in friends){
+                    // friends[i].body.material.color = new THREE.Color( that.color(Math.random()) );
+                    friends[i].body.material.color = new THREE.Color( that.colorD3(Math.floor(Math.random()*10)) );
+
+                    let value = friends[i];
+                    let sphere_material = friends[i].body.material;
+                    if (value.data.post == 'movie') {
+                        sphere_material.color = new THREE.Color( 0xf09c67 );
+                    }
+                    if (value.data.post == 'director') {
+                        sphere_material.color = new THREE.Color( 0xf09c67 );
+                    }
+                    if (value.id == 0){
+                        sphere_material.color = new THREE.Color( 0xff5959 );
+                    }
+                }
+                // event.object.material.color = new THREE.Color( that.color(Math.random()) );
+
+                controls.enabled = true;
+            });
+            dragControls.addEventListener('dragstart', function (event) {
+                event.object.data.pbody.type = CANNON.Body.KINEMATIC;//data=node
+                event.object.data.pbody.updateMassProperties();
+                that.onDrag = true;
+            });
+            dragControls.addEventListener('drag', function (event) {
+                event.object.data.pbody.position.copy(event.object.position);
+                existMouseMove = true;
+            });
+            dragControls.addEventListener('dragend', function (event) {
+                event.object.data.pbody.type = CANNON.Body.DYNAMIC;
+                event.object.data.pbody.updateMassProperties();
+                that.onDrag = false;
+                if (!existMouseMove && !!event.object.data.url && event.object.data.url !== '')
+                {
+                    window.top.open(event.object.data.url);
+                }
+                existMouseMove = false;
+            });
+        }
+
+        function start(){
+            this.initObject();
+            let preSimulate = 5;
+            let tick = 0.02;
+            console.time();
+            for (let i = 0; i < preSimulate / tick; i++)
+            {
+                this.world.step(tick);
+                this.applyForce();
+            }
+            console.timeEnd();
+            this.lastTime = performance.now();
+            this.render(this.lastTime);
+        }
+
+        function render(now) {
+            let timeSpan = now - this.lastTime;
+            this.lastTime = now;
+            if (timeSpan > 0)
+            {
+                this.world.step(Math.min(timeSpan, 100) / 1000);
+                this.applyForce();
+            }
+            this.scene.userData.controls.update();
+
+            this.renderer.render(this.scene, this.scene.userData.camera);
+            requestAnimationFrame(this.render.bind(this));//传递当前语境中的this
+        }
+	    
+        
+    </script>
+
+</body>
+</html>
