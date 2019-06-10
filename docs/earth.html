@@ -81,7 +81,7 @@
                 bumpMap:     getTexture('static/texture/earth/elev_bump_4k.jpg'),//凹凸贴图
                 transparent: true,
                 emissiveIntensity: 0.05,
-                // alphaMap:    getTexture('static/texture/earth/grey.jpg'),//透明度贴图，黑色：完全透明;白色：完全不透明
+                alphaMap:    getTexture('static/texture/earth/grey.jpg'),//透明度贴图，黑色：完全透明;白色：完全不透明
             });
 
             var mesh = new THREE.Mesh( geometry, material );
