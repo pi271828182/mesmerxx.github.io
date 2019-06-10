@@ -68,9 +68,9 @@
         //大气层
         function creatAero(radius){
             var cloudsGeo = new THREE.SphereGeometry(radius,radius/2,radius/2);
-            var cloudsMater = new THREE.MeshPhongMaterial({map:this.getTexture('static/texture/earth/earth_clouds_2048.png'),transparent:true,opacity:1});
+            var cloudsMater = new THREE.MeshPhongMaterial({map:getTexture('static/texture/earth/earth_clouds_2048.png'),transparent:true,opacity:1});
             var cloudsMesh = new THREE.Mesh(cloudsGeo,cloudsMater);
-            this.group.add(cloudsMesh);
+            scene.add(cloudsMesh);
         }
 
         function initSphere(){
