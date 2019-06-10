@@ -81,7 +81,7 @@
                 bumpMap:     getTexture('static/texture/earth/elev_bump_4k.jpg'),//凹凸贴图
                 transparent: true,
                 emissiveIntensity: 0.05,
-                alphaMap:    getTexture('static/texture/earth/grey.jpg'),//透明度贴图，黑色：完全透明;白色：完全不透明
+                // alphaMap:    getTexture('static/texture/earth/grey.jpg'),//透明度贴图，黑色：完全透明;白色：完全不透明
             });
 
             var mesh = new THREE.Mesh( geometry, material );
@@ -139,15 +139,7 @@
                 midVector.multiplyScalar(0.8);
             }
             positions.push(midVector);
-            // if(midVector.length () < radius*1.1){
-            //     var midVector1 = new THREE.Vector3(51.94899521179721, 41.15592339334897, -74.2104844406552).multiplyScalar(1.2);
-            //     var midVector2= new THREE.Vector3(-21.648528130319804, -8.201190999766547 , -96.86507449452817).multiplyScalar(1.2);
-            //     var midVector3= new THREE.Vector3(-97.91601591159608, -7.8530113363611385 , -16.534424883591797).multiplyScalar(1.2);
-            //     positions.pop();
-            //     positions.push(midVector1);
-            //     positions.push(midVector2);
-            //     positions.push(midVector3);
-            // }
+            
             positions.push(obj1.position);
             
             var curve = new THREE.CatmullRomCurve3( positions );//Create a smooth 3d spline curve from a series of points
