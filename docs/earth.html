@@ -77,11 +77,11 @@
             var geometry = new THREE.SphereGeometry( 100, 32, 32 );
 
             var material = new THREE.MeshPhongMaterial({
-                map:         getTexture('static/texture/earth/2_no_clouds_4k.jpg'),
-                bumpMap:     getTexture('static/texture/earth/elev_bump_4k.jpg'),//凹凸贴图
+                map:         getTexture('static/texture/微信图片_20190619175355.jpg'),
+                //bumpMap:     getTexture('static/texture/earth/elev_bump_4k.jpg'),//凹凸贴图
                 transparent: true,
                 emissiveIntensity: 0.05,
-                alphaMap:    getTexture('static/texture/earth/grey.jpg'),//透明度贴图，黑色：完全透明;白色：完全不透明
+                //alphaMap:    getTexture('static/texture/earth/grey.jpg'),//透明度贴图，黑色：完全透明;白色：完全不透明
             });
 
             var mesh = new THREE.Mesh( geometry, material );
