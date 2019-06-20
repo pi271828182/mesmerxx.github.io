@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>hist</title>
+    <title>model</title>
     <style>
         html{
             overflow:hidden;
@@ -101,14 +101,16 @@
 
         function initObject(){
             var loader = new THREE.STLLoader();
+            var that = this;
             loader.load("./static/model/hand1.stl", function (geometry) {
                 //创建纹理
+                console.log('模型');
                 var mat = new THREE.MeshLambertMaterial({color: 0x00ffff});
                 var mesh = new THREE.Mesh(geometry, mat);
                 // mesh.rotation.x = -0.5 * Math.PI; //将模型摆正
                 // mesh.scale.set(0.1, 0.1, 0.1); //缩放
                 // geometry.center(); //居中显示
-                scene.add(mesh);
+                that.scene.add(mesh);
             });
         }
 
