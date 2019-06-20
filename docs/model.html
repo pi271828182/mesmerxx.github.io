@@ -106,12 +106,15 @@
                 function (geometry) {
                     //创建纹理
                     console.log('模型');
+                    console.log('geometry:', geometry);
+
                     var mat = new THREE.MeshPhongMaterial({color: 0xff0000});
                     var mesh = new THREE.Mesh(geometry, mat);
                     // mesh.rotation.x = -0.5 * Math.PI; //将模型摆正
                     // mesh.scale.set(0.1, 0.1, 0.1); //缩放
                     // geometry.center(); //居中显示
                     that.scene.add(mesh);
+                    console.log(that.scene);
                 },
                 function(msg){console.log(msg)},
                 function(err){console.log('错误：', err) }
