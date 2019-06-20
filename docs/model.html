@@ -106,7 +106,7 @@
                 function (geometry) {
                     //创建纹理
                     console.log('模型');
-                    var mat = new THREE.MeshLambertMaterial({color: 0x00ffff});
+                    var mat = new THREE.MeshPhongMaterial({color: 0xff0000});
                     var mesh = new THREE.Mesh(geometry, mat);
                     // mesh.rotation.x = -0.5 * Math.PI; //将模型摆正
                     // mesh.scale.set(0.1, 0.1, 0.1); //缩放
