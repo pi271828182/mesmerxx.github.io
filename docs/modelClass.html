@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <title>class</title>
+    <style>
+        html{
+            height: 100%;
+            /*overflow:hidden;*/
+            font-weight:100;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1em;
+            height: 100%;
+            margin: 0;
+        }
+        
+        .content{
+            float: left;
+            width: auto;
+            min-width: 100%;
+            height: auto;
+            z-index: 10;
+            border-bottom:1px #000000 solid;
+
+        }
+
+        .list-item {
+            display: inline-block;
+            box-sizing: content-box;
+            margin: 0;
+            padding: 0;
+            box-shadow: 1px 2px 4px 0px rgba(0,0,0,0.25);
+            width:50vh;
+            /*24.8%;*/
+            height: 50vh;
+            }
+        .left{
+            float: left;
+            border-right:1px #000000 solid;
+        }
+        .right{
+            float: right;
+            border-left:1px #000000 solid;
+        }
+
+        #canvas-frame {
+            position:absolute;
+            left:12.5vw;
+            width: 75vw;
+            height: 99vh;
+            z-index: 5;
+        }
+    </style>
+    
+</head>
+<body>
+    <div class="content">
+        <div class="list-item left" id="g1"></div>
+        <div class="list-item left" id="g2"></div>
+        <!-- <div class="list-item left" ></div>
+        <div class="list-item"></div> -->
+    </div>
+    <div class="content">
+        <div class="list-item left"  id="g3"></div>
+        <div class="list-item left" id="g4"></div>
+        <div class="list-item left"  id="g5"></div>
+        <!-- <div class="list-item" ></div> -->
+    </div>
+    <div class="content">
+        <div class="list-item left" id="g6"></div>
+        
+    </div>
+
+    <script src="./static/js/support/three.js" ></script>
+    
+    <script src="./static/js/support/OrbitControls.js" ></script>
+    
+    <script src="./static/js/support/STLLoader.js" ></script>
+
+    <script src="./static/js/objSelection.js"></script>
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.4.4/babel.min.js"></script> -->
+    <script type="text/javascript">
+        class GraphThree{
+            scene;
+            renderer;
+
+            threeDiv;//dom对象
+            data;//存放数据
+
+            group;//存放交互物体
+            axisPlane;
+
+            object_selection;
+            isCatalog = false;
+
+            constructor(data, renderDivId, isCatalog) {//对象和两个字符串
+                this.threeDiv = document.getElementById( renderDivId );
+                this.renderer = new THREE.WebGLRenderer( {antialias: true, alpha: true} );
+                
+                console.log(renderDivId);
+                var width = this.threeDiv.clientWidth;
+                var height = this.threeDiv.clientHeight;
+                this.renderer.setSize(width, height);
+                this.threeDiv.appendChild(this.renderer.domElement);
+
+                this.scene = new THREE.Scene();
+                
+                this.group = new THREE.Object3D();
+                this.scene.add(this.group);
+
+                this.scene.userData.element = document.getElementById(renderDivId);
+
+                var camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
+                camera.position.x = 0;
+                camera.position.y = 100;
+                camera.position.z = 300;
+                camera.lookAt(this.group.position);
+                this.scene.add(camera);
+                this.scene.userData.camera = camera;
+
+                var light = new THREE.DirectionalLight(0xffffff, 1.0, 0);
+                light.position.set(-100, 500, 200);
+                this.scene.add(light);
+
+                var orbitControls = new THREE.OrbitControls(this.scene.userData.camera, this.scene.userData.element);
+                orbitControls.target = this.group.position;//控制焦点
+                orbitControls.autoRotate = true;//自动旋转
+                this.scene.userData.controls = orbitControls;
+
+                this.data = data;
+
+                this.isCatalog = isCatalog;
+
+                if(this.isCatalog){
+                    camera.position.z += 160;
+                }
+            }
+
+            initGrid(){
+                //平面
+                var gridXZ = new THREE.GridHelper(500, 5, 0xf4f4f4, 0xf4f4f4);//4个参数：网格宽度、等分数、中心线颜色，网格线颜色
+                gridXZ.position.set( 0,0,0 );
+                gridXZ.material.linewidth = 0.5;
+
+                this.axisPlane = gridXZ;
+                this.scene.add(this.axisPlane);
+                
+            }
+        }
+
+        class Model extends GraphThree{
+            constructor(data, threeDivId, isCatalog){
+                super(data, threeDivId, isCatalog);
+                
+                var light2 = new THREE.DirectionalLight(0xeeeeee, 1.0, 0);
+                light2.position.set(500, 0, 0);
+                this.scene.add(light2);
+
+                var light3 = new THREE.DirectionalLight(0xeeeeee, 1.0, 0);
+                light3.position.set(-500, 0, 0);
+                this.scene.add(light3);
+
+                var aLight = new THREE.AmbientLight( 0xaaaaaa ); 
+                this.scene.add( aLight );
+            }
+
+            start(){
+                this.initGrid();
+                // this.creatAureole();
+                this.initObject();
+                
+                // this.ObjectSelection();
+                this.render();
+            }
+
+            render() {
+                this.scene.userData.controls.update();
+
+                // if(this.isCatalog == false){
+                //     this.object_selection.render(this.group, this.scene.userData.camera);
+                // }
+
+                this.renderer.render(this.scene, this.scene.userData.camera);
+                requestAnimationFrame(this.render.bind(this));//传递当前语境中的this
+            }
+
+            initObject(){
+                var that = this;
+                var loader = new THREE.STLLoader();
+                var material = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, shininess: 200 } );
+
+
+                // Colored binary STL
+                loader.load( that.data, 
+                    function ( geometry ) {
+                        var meshMaterial = material;
+                        if ( geometry.hasColors ) {
+                            meshMaterial = new THREE.MeshPhongMaterial( { opacity: geometry.alpha, vertexColors: THREE.VertexColors } );
+                        }
+                        
+                        geometry.center();
+
+                        var mesh = new THREE.Mesh( geometry, meshMaterial );
+                        
+                        mesh.rotation.set( - Math.PI / 2, 0, 0 );
+                        // mesh.scale.set( 0.5, 0.5, 0.5 );
+
+                        mesh.castShadow = true;
+                        mesh.receiveShadow = true;
+                
+                        that.scene.add( mesh );
+                        // that.group.add(mesh);
+
+                        geometry.computeBoundingBox();
+                        // console.log('下底：', geometry.boundingBox.min.y);
+                        that.axisPlane.position.set(0, geometry.boundingBox.min.y - geometry.boundingBox.max.y, 0);
+
+                    }
+                );
+            }
+
+
+            ObjectSelection(){
+                this.object_selection = new THREE.ObjectSelection({//个人封装的js，three.js官方库中无
+                    domElement: this.scene.userData.element,//渲染区域
+                    selected: function(selectObj) {//selectObj为选取返回对象
+                        if(selectObj !== null) {//判断是否为空，objsel.js中有对应
+                            
+                      } else {
+                        
+                      }
+                    },
+                    clicked: function(selectObj) {//点击事件
+                        // obj.material.color.setHex( Math.random() * 0xe0e0e0 );
+                    },
+                    mousedown: function(selectObj) {//点击事件
+                        // obj.material.color.setHex( Math.random() * 0xe0e0e0 );
+                    },
+                    mouseup: function(selectObj) {//点击事件
+                        // obj.material.color.setHex( Math.random() * 0xe0e0e0 );
+                    }
+                  });
+            }
+
+        }
+    
+        var isCatalog = true;
+
+        var urls = ['./static/model/stl/binary/head1.stl', './static/model/stl/binary/head2.stl',
+                    './static/model/stl/binary/hand1.stl', './static/model/stl/binary/hand2.stl', './static/model/stl/binary/hand3.stl',
+                    './static/model/stl/binary/shoulder.stl']
+        var ids = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6']
+
+        for(var i=0; i< urls.length; i++){
+            var model = new Model(urls[i], ids[i], isCatalog);
+            model.start();
+        }
+        
+    </script>
+
+
+</body>
+</html>
