@@ -55,7 +55,8 @@
     
 </head>
 <body>
-    <div class="content">
+    <div id="canvas-frame"></div>
+    <!-- <div class="content">
         <div class="list-item left"></div>
         <div class="list-item left" id="g1"></div>
         <div class="list-item left" id="g2"></div>
@@ -66,7 +67,7 @@
         <div class="list-item left" id="g4"></div>
         <div class="list-item left" id="g5"></div>
         <div class="list-item nextCanvas" id="g6"></div>
-    </div>
+    </div> -->
 
     <script src="./static/js/support/three.js" ></script>
     
@@ -78,7 +79,6 @@
 
     <script src="static/js/support/d3.v4.min.js"></script>
     
-    <!-- <script src="static/js/viz3d.js?version=1"></script> -->
     <script type="text/javascript">
         class GraphThree{
             static scenes;
@@ -138,85 +138,11 @@
                 this.data = data;
             }
 
-            //光圈
-            creatAureole(){
-                //顶点着色器
-                var vertexShader = [
-                'varying vec3   vVertexWorldPosition;',
-                'varying vec3   vVertexNormal;',
-                'varying vec4   vFragColor;',
-                'void main(){',
-                '   vVertexNormal   = normalize(normalMatrix * normal);',//将法线转换到视图坐标系中
-                '   vVertexWorldPosition    = (modelMatrix * vec4(position, 1.0)).xyz;',//将顶点转换到世界坐标系中
-                '   // set gl_Position',
-                '   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
-                '}'
-
-            ].join('\n');
-                //大气层效果
-                THREE.AeroSphere = {
-                    uniforms: {
-                        coeficient: {
-                            type: "f",
-                            value: 1.0
-                        },
-                        power: {
-                            type: "f",
-                            value: 2
-                        },
-                        glowColor: {
-                            type: "c",
-                            value: new THREE.Color(0xfff5eb)
-                        }
-                    },
-                    vertexShader: vertexShader,//顶点着色器
-                    fragmentShader: [
-                        'uniform vec3   glowColor;',
-                        'uniform float  coeficient;',
-                        'uniform float  power;',
-
-                        'varying vec3   vVertexNormal;',
-                        'varying vec3   vVertexWorldPosition;',
-
-                        'varying vec4   vFragColor;',
-
-                        'void main(){',
-                        '   vec3 worldCameraToVertex= vVertexWorldPosition - cameraPosition;',  //世界坐标系中从相机位置到顶点位置的距离
-                        '   vec3 viewCameraToVertex = (viewMatrix * vec4(worldCameraToVertex, 0.0)).xyz;',//视图坐标系中从相机位置到顶点位置的距离
-                        '   viewCameraToVertex  = normalize(viewCameraToVertex);',//规一化
-                        '   float intensity     = pow(coeficient + dot(vVertexNormal, viewCameraToVertex), power);',
-                        '   gl_FragColor        = vec4(glowColor, intensity);',
-                        '}'//vVertexNormal视图坐标系中点的法向量
-                        //viewCameraToVertex视图坐标系中点到摄像机的距离向量
-                        //dot点乘得到它们的夹角的cos值
-                        //从中心向外面角度越来越小（从钝角到锐角）从cos函数也可以知道这个值由负变正，不透明度最终从低到高
-                    ].join('\n')
-                };
-                //大气层
-                var material1 = new THREE.ShaderMaterial({
-                    uniforms: THREE.AeroSphere.uniforms,
-                    vertexShader: THREE.AeroSphere.vertexShader,
-                    fragmentShader: THREE.AeroSphere.fragmentShader,
-                    blending: THREE.NormalBlending,
-                    transparent: true,
-                    depthWrite:false
-                });
-                var sphere = new THREE.SphereBufferGeometry(120, 32, 32);
-                var mesh = new THREE.Mesh(sphere, material1);
-                this.scene.add(mesh);
-            }
-
-            //加载纹理
-            getTexture(str){//str为纹理url
-                var loader = new THREE.TextureLoader();
-                 return loader.load(str);
-            }
-
             initGrid(){
                 //平面
                 var gridXZ = new THREE.GridHelper(200, 10, 0xa23131, 0xa23131);//4个参数分别是：网格宽度、等分数、中心线颜色，网格线颜色
                 gridXZ.position.set( 0,0,0 );
-                gridXZ.material.linewidth = 10;
+                gridXZ.material.linewidth = 2;
                 this.scene.add(gridXZ);
                 if(this.isCatalog){
                     gridXZ.scale.set(0.6, 0.6, 0.6)
@@ -321,7 +247,7 @@
     <script>
     var isCatalog = true;
 
-    var hand = new Model('./static/model/stl/binary/hand1.stl', 'g2', isCatalog);
+    var hand = new Model('./static/model/stl/binary/hand1.stl', 'canvas-frame', isCatalog);
     hand.start();
     // hand.group.scale.set(0.7, 0.7, 0.7);
 
