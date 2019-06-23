@@ -101,7 +101,7 @@
         function render()
         {
             scene.userData.controls.update();
-            object_selection.rendesr(group, scene.userData.camera);
+            object_selection.render(group, scene.userData.camera);
             renderer.render(scene, scene.userData.camera);
             requestAnimationFrame(render);
         }
@@ -149,11 +149,11 @@
                 selected: function(selectObj) {//selectObj为选取返回对象
                     // 显示信息，此处为个性化处理，该函数会作为传入objsel.js中作为处理函数
                     if(selectObj !== null) {//判断是否为空，objsel.js中有对应
-                        var meshObj = selectObj.object;
-                        meshObj.material.color = new THREE.Color("rgb(220,76,65)");
+                        // var meshObj = selectObj.object;
+                        // meshObj.material.color = new THREE.Color("rgb(220,76,65)");
 
-                        document.getElementById('year').textContent = meshObj.userData.name + ' 年度';
-                        document.getElementById('screenNum').textContent = meshObj.userData.num +' 块屏';
+                        // document.getElementById('year').textContent = meshObj.userData.name + ' 年度';
+                        // document.getElementById('screenNum').textContent = meshObj.userData.num +' 块屏';
                     }
                 },
                 clicked: function(selectObj) {//点击事件
