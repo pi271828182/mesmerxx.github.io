@@ -1256,7 +1256,7 @@ class Model extends GraphThree{
 
 
         // Colored binary STL
-        loader.load( data, 
+        loader.load( this.data, 
             function ( geometry ) {
 
                 var meshMaterial = material;
