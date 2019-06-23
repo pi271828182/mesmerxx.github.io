@@ -8,8 +8,10 @@
         }
         #canvas-frame {
             position:absolute;
-            width: 100vw;
-            height: 100vh;
+            left: 25vw;
+            top: 25vh;
+            width: 50vw;
+            height: 50vh;
         }
         #interaction{
             position:absolute;
@@ -24,24 +26,20 @@
 </head>
 <body>
     <div id="canvas-frame"></div>
-    <!-- <div id="interaction">
-        <p id="year"></p>
-        <p id="screenNum"></p>
-    </div> -->
+    
 	
     <script src="./static/js/support/three.js" ></script>
     
-    <!-- <script src="./static/js/support/TrackballControls.js" ></script> -->
     <script src="./static/js/support/OrbitControls.js" ></script>
     
     <script src="./static/js/support/STLLoader.js" ></script>
 
-    <script src="./static/js/objSelection.js"></script>
+    <!-- <script src="./static/js/objSelection.js"></script> -->
    
     <script type="text/javascript">
 
         var threeDiv = document.getElementById( 'canvas-frame' );
-        var renderer = new THREE.WebGLRenderer( {antialias: true, alpha: true} );
+        var renderer = new THREE.WebGLRenderer( {antialias: true} );
         renderer.setClearColor( 0xffffff, 0 );
 
         var width = threeDiv.clientWidth;
@@ -68,18 +66,9 @@
         light.position.set(-100, 500, 200);
         scene.add(light);
 
-        var aLight = new THREE.AmbientLight( 0xaaaaaa );
+        var aLight = new THREE.AmbientLight( 0xeeeeee );
         scene.add( aLight );
 
-        // var controls = new THREE.TrackballControls( scene.userData.camera , scene.userData.element);
-        // controls.zoomSpeed = 1.2;
-        // controls.panSpeed = 0.8;
-
-        // controls.noZoom = false;
-        // controls.noPan = false;
-
-        // controls.staticMoving = true;
-        // controls.dynamicDampingFactor = 0.3;
         var orbitControls = new THREE.OrbitControls(scene.userData.camera, scene.userData.element);
         // orbitControls.autoRotate = true;//自动旋转
         scene.userData.controls = orbitControls;
@@ -87,8 +76,8 @@
         // initGrid();
         initObject();
         
-        var object_selection;
-        ObjectSelection();
+        // var object_selection;
+        // ObjectSelection();
         render();
 
         function initGrid(){
@@ -132,12 +121,12 @@
         
 
                     // mesh.rotation.set( - Math.PI / 2, Math.PI / 2, 0 );
-                    mesh.scale.set( 10, 10, 10 );
+                    // mesh.scale.set( 10, 10, 10 );
 
-                    mesh.castShadow = true;
-                    mesh.receiveShadow = true;
+                    // mesh.castShadow = true;
+                    // mesh.receiveShadow = true;
 
-                    group.add( mesh );
+                    scene.add( mesh );
                     // console.log('模型加载完成');
 
                 }
@@ -145,36 +134,36 @@
         }
 
        
-        function ObjectSelection(){
-            object_selection = new THREE.ObjectSelection({//个人封装的js，three.js官方库中无
-                domElement: scene.userData.element,//渲染区域
-                selected: function(selectObj) {//selectObj为选取返回对象
-                    // 显示信息，此处为个性化处理，该函数会作为传入objsel.js中作为处理函数
-                    if(selectObj !== null) {//判断是否为空，objsel.js中有对应
-                        var meshObj = selectObj.object;
-                        meshObj.material.color = new THREE.Color("rgb(220,76,65)");
+        // function ObjectSelection(){
+        //     object_selection = new THREE.ObjectSelection({//个人封装的js，three.js官方库中无
+        //         domElement: scene.userData.element,//渲染区域
+        //         selected: function(selectObj) {//selectObj为选取返回对象
+        //             // 显示信息，此处为个性化处理，该函数会作为传入objsel.js中作为处理函数
+        //             if(selectObj !== null) {//判断是否为空，objsel.js中有对应
+        //                 var meshObj = selectObj.object;
+        //                 meshObj.material.color = new THREE.Color("rgb(220,76,65)");
 
-                        document.getElementById('year').textContent = meshObj.userData.name + ' 年度';
-                        document.getElementById('screenNum').textContent = meshObj.userData.num +' 块屏';
-                    }
-                },
-                clicked: function(selectObj) {//点击事件
-                    if(selectObj !== null) {
+        //                 document.getElementById('year').textContent = meshObj.userData.name + ' 年度';
+        //                 document.getElementById('screenNum').textContent = meshObj.userData.num +' 块屏';
+        //             }
+        //         },
+        //         clicked: function(selectObj) {//点击事件
+        //             if(selectObj !== null) {
 
-                  }
-                },
-                mousedown: function(selectObj) {//点击事件
-                    if(selectObj !== null) {
+        //           }
+        //         },
+        //         mousedown: function(selectObj) {//点击事件
+        //             if(selectObj !== null) {
                         
-                  }
-                },
-                mouseup: function(selectObj) {//点击事件
-                   if(selectObj !== null) {
+        //           }
+        //         },
+        //         mouseup: function(selectObj) {//点击事件
+        //            if(selectObj !== null) {
                         
-                  }
-                }
-              });
-        }
+        //           }
+        //         }
+        //       });
+        // }
     </script>
 
 </body>
