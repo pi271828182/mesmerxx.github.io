@@ -81,9 +81,6 @@
 
     <script src="./static/js/objSelection.js"></script>
 
-    <script src="static/js/support/d3.v4.min.js"></script>
-    
-    <!-- <script src="static/js/viz3d.js"></script> -->
     <script type="text/javascript">
         class GraphThree{
             scene;
@@ -102,6 +99,7 @@
                 this.threeDiv = document.getElementById( renderDivId );
                 this.renderer = new THREE.WebGLRenderer( {antialias: true, alpha: true} );
                 
+                console.log(renderDivId);
                 var width = this.threeDiv.clientWidth;
                 var height = this.threeDiv.clientHeight;
                 this.renderer.setSize(width, height);
@@ -257,7 +255,7 @@
                     './static/model/stl/binary/shoulder.stl']
         var ids = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6']
 
-        for(var i=0; i<= urls.length; i++){
+        for(var i=0; i< urls.length; i++){
             var model = new Model(urls[i], ids[i], isCatalog);
             model.start();
         }
