@@ -60,14 +60,14 @@ class GraphThree{
     creatAureole(){
         //顶点着色器
         var vertexShader = [
-        'varying vec3	vVertexWorldPosition;',
-        'varying vec3	vVertexNormal;',
-        'varying vec4	vFragColor;',
+        'varying vec3   vVertexWorldPosition;',
+        'varying vec3   vVertexNormal;',
+        'varying vec4   vFragColor;',
         'void main(){',
-        '	vVertexNormal	= normalize(normalMatrix * normal);',//将法线转换到视图坐标系中
-        '	vVertexWorldPosition	= (modelMatrix * vec4(position, 1.0)).xyz;',//将顶点转换到世界坐标系中
-        '	// set gl_Position',
-        '	gl_Position	= projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
+        '   vVertexNormal   = normalize(normalMatrix * normal);',//将法线转换到视图坐标系中
+        '   vVertexWorldPosition    = (modelMatrix * vec4(position, 1.0)).xyz;',//将顶点转换到世界坐标系中
+        '   // set gl_Position',
+        '   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
         '}'
 
     ].join('\n');
@@ -89,21 +89,21 @@ class GraphThree{
             },
             vertexShader: vertexShader,//顶点着色器
             fragmentShader: [
-                'uniform vec3	glowColor;',
-                'uniform float	coeficient;',
-                'uniform float	power;',
+                'uniform vec3   glowColor;',
+                'uniform float  coeficient;',
+                'uniform float  power;',
 
-                'varying vec3	vVertexNormal;',
-                'varying vec3	vVertexWorldPosition;',
+                'varying vec3   vVertexNormal;',
+                'varying vec3   vVertexWorldPosition;',
 
-                'varying vec4	vFragColor;',
+                'varying vec4   vFragColor;',
 
                 'void main(){',
-                '	vec3 worldCameraToVertex= vVertexWorldPosition - cameraPosition;',	//世界坐标系中从相机位置到顶点位置的距离
-                '	vec3 viewCameraToVertex	= (viewMatrix * vec4(worldCameraToVertex, 0.0)).xyz;',//视图坐标系中从相机位置到顶点位置的距离
-                '	viewCameraToVertex	= normalize(viewCameraToVertex);',//规一化
-                '	float intensity		= pow(coeficient + dot(vVertexNormal, viewCameraToVertex), power);',
-                '	gl_FragColor		= vec4(glowColor, intensity);',
+                '   vec3 worldCameraToVertex= vVertexWorldPosition - cameraPosition;',  //世界坐标系中从相机位置到顶点位置的距离
+                '   vec3 viewCameraToVertex = (viewMatrix * vec4(worldCameraToVertex, 0.0)).xyz;',//视图坐标系中从相机位置到顶点位置的距离
+                '   viewCameraToVertex  = normalize(viewCameraToVertex);',//规一化
+                '   float intensity     = pow(coeficient + dot(vVertexNormal, viewCameraToVertex), power);',
+                '   gl_FragColor        = vec4(glowColor, intensity);',
                 '}'//vVertexNormal视图坐标系中点的法向量
                 //viewCameraToVertex视图坐标系中点到摄像机的距离向量
                 //dot点乘得到它们的夹角的cos值
@@ -503,7 +503,7 @@ class Earth extends GraphThree{
             emissiveIntensity: 0.05,
             //wireframe:true,
             transparent: true,
-            alphaMap:	 this.getTexture('static/texture/earth/grey.jpg'),//透明度贴图，黑色：完全透明;白色：完全不透明
+            alphaMap:    this.getTexture('static/texture/earth/grey.jpg'),//透明度贴图，黑色：完全透明;白色：完全不透明
         });
         var mesh2 = new THREE.Mesh( geometry, material );
         mesh2.rotation.y += Math.PI*15.22/10;//从北极往南极望是顺时针旋转，手动调整本初子午线与y0z平面的误差
@@ -1216,4 +1216,99 @@ class ForceDerict extends GraphThree{
         this.renderer.render(this.scene, this.scene.userData.camera);
         requestAnimationFrame(this.render.bind(this));//传递当前语境中的this
     }
+}
+
+class Model extends GraphThree{
+    constructor(data, threeDivId, isCatalog){
+        super(data, threeDivId, isCatalog);
+        var light2 = new THREE.DirectionalLight(0xeeeeee, 1.0, 0);
+        light2.position.set(500, 0, 0);
+        this.scene.add(light2);
+
+        var light3 = new THREE.DirectionalLight(0xeeeeee, 1.0, 0);
+        light3.position.set(-500, 0, 0);
+        this.scene.add(light3);
+    }
+
+    start(){
+        // this.initGrid();
+        this.creatAureole();
+        this.initObject();
+        
+        this.ObjectSelection();
+        this.render();
+    }
+
+    render() {
+        this.scene.userData.controls.update();
+
+        if(this.isCatalog == false){
+            this.object_selection.render(this.group, this.scene.userData.camera);
+        }
+
+        this.renderer.render(this.scene, this.scene.userData.camera);
+        requestAnimationFrame(this.render.bind(this));//传递当前语境中的this
+    }
+
+    initObject(){
+        var loader = new THREE.STLLoader();
+        var material = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, shininess: 200 } );
+
+
+        // Colored binary STL
+        loader.load( data, 
+            function ( geometry ) {
+
+                var meshMaterial = material;
+                if ( geometry.hasColors ) {
+
+                    meshMaterial = new THREE.MeshPhongMaterial( { opacity: geometry.alpha, vertexColors: THREE.VertexColors } );
+
+                }
+
+                geometry.center();
+
+                var mesh = new THREE.Mesh( geometry, meshMaterial );
+
+                // mesh.position.set( 0, 0, 0 );
+                scene.userData.controls.target = mesh.position;//控制焦点
+    
+
+                mesh.rotation.set( - Math.PI / 2, 0, 0 );
+                // mesh.scale.set( 0.5, 0.5, 0.5 );
+
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
+
+                // scene.add( mesh );
+                group.add(mesh);
+                // console.log('模型加载完成');
+
+            }
+        );
+    }
+
+
+    ObjectSelection(){
+        this.object_selection = new THREE.ObjectSelection({//个人封装的js，three.js官方库中无
+            domElement: this.scene.userData.element,//渲染区域
+            selected: function(selectObj) {//selectObj为选取返回对象
+                if(selectObj !== null) {//判断是否为空，objsel.js中有对应
+                    
+              } else {
+                
+              }
+            },
+            clicked: function(selectObj) {//点击事件
+                // obj.material.color.setHex( Math.random() * 0xe0e0e0 );
+            },
+            mousedown: function(selectObj) {//点击事件
+                // obj.material.color.setHex( Math.random() * 0xe0e0e0 );
+            },
+            mouseup: function(selectObj) {//点击事件
+                // obj.material.color.setHex( Math.random() * 0xe0e0e0 );
+            }
+          });
+    }
+
 }
