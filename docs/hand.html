@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>model</title>
+    <meta charset="utf-8">
     <style>
         html{
             overflow:hidden;
@@ -11,23 +12,19 @@
             width: 100vw;
             height: 100vh;
         }
-        #interaction{
-            position:absolute;
-            left:80vw;
-            top:5vh;
-            width: 20vw;
-            height: 20vh;
-            z-index: 10;
-            font-size: 30px;
+        #info {
+            position: absolute;
+            width: 100px;
+            height: 50px;
+            text-align: center;
+            z-index: 100;
+            display:block;
         }
     </style>
 </head>
 <body>
     <div id="canvas-frame"></div>
-    <div id="interaction">
-        <p id="year"></p>
-        <p id="screenNum"></p>
-    </div>
+    <div id="info">Description</div>
     
 
     <script src="./static/js/support/three.js" ></script>
@@ -84,19 +81,21 @@
         controls.autoRotate = true;//自动旋转
         scene.userData.controls = controls;
 
-        // initGrid();
+        initGrid();
         initObject();
+        createSprite()
         
         var object_selection;
         ObjectSelection();
         render();
 
         function initGrid(){
-            //平面
-            var gridXZ = new THREE.GridHelper(200, 10, 0xa23131, 0xa23131);//4个参数分别是：网格宽度、等分数、中心线颜色，网格线颜色
-            gridXZ.position.set( 0,0,0 );
-            gridXZ.material.linewidth = 10;
-            scene.add(gridXZ);
+            var gridXZ = new THREE.GridHelper(150, 30, 0xf4f4f4, 0xf4f4f4);//4个参数：网格宽度、等分数、中心线颜色，网格线颜色
+            gridXZ.position.set( 0,-80,0 );
+            gridXZ.material.linewidth = 0.1;
+
+            this.axisPlane = gridXZ;
+            this.scene.add(this.axisPlane);
         }
 
 
@@ -134,7 +133,7 @@
         
 
                     mesh.rotation.set( - Math.PI / 2, 0, 0 );
-                    mesh.scale.set( 0.8, 0.8, 0.8 );
+                    mesh.scale.set( 0.6, 0.6, 0.6 );
 
                     mesh.castShadow = true;
                     mesh.receiveShadow = true;
@@ -146,6 +145,44 @@
             );
         }
 
+        function createSprite(){
+
+            var locData = [{title:'指', position:{x: -40.29545316508634, y: 8.57288804724248, z: 19.85311432019667}},
+                        {title:'掌', position:{x: 3.926331871626723, y: -5.3684563275748935, z: 3.8980507851518258}},
+                        {title:'腕', position:{x: 7.258544088016338, y: -40.246285220396715, z: 8.178174235486935}},
+                ]
+
+            var spriteMaterial = new THREE.SpriteMaterial({
+                color:0xffffff
+            });
+
+            
+            var pointMaterial = new THREE.MeshBasicMaterial({color: 0xFF0000});
+
+            for (var i = 0; i < locData.length; i++) {
+
+                let canvas = document.createElement("canvas");
+                canvas.width = 512;
+                canvas.height = 512;
+                let ctx = canvas.getContext("2d");
+                
+                ctx.fillText(locData[i].title, 256, 256, 512);
+                let spriteMap = new THREE.CanvasTexture(canvas);
+                spriteMap.needsUpdate = true;
+                let spriteMaterial = new THREE.SpriteMaterial({map: spriteMap});
+                let sprite = new THREE.Sprite(spriteMaterial);
+                sprite.scale.set(160, 160, 160);
+                group.add(sprite);//scene改group
+                sprite.position.set(locData[i].position.x, locData[i].position.y, locData[i].position.z+3);
+
+                var pointGeometry = new THREE.SphereGeometry(1.5, 20, 20);
+                var pointMesh = new THREE.Mesh(pointGeometry, pointMaterial);
+                pointMesh.position.copy(locData[i].position);
+                pointMesh.userData.title = locData[i].title;
+                group.add(pointMesh);
+            }
+        }
+
        
         function ObjectSelection(){
             object_selection = new THREE.ObjectSelection({//个人封装的js，three.js官方库中无
@@ -154,11 +191,12 @@
                     // 显示信息，此处为个性化处理，该函数会作为传入objsel.js中作为处理函数
                     if(selectObj !== null) {//判断是否为空，objsel.js中有对应
 
+
                     }
                 },
                 clicked: function(selectObj) {//点击事件
                     if(selectObj !== null) {
-                        
+                        console.log(selectObj);
                   }
                 },
                 mousedown: function(selectObj) {//点击事件
