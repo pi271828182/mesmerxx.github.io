@@ -8,10 +8,8 @@
         }
         #canvas-frame {
             position:absolute;
-            left: 25vw;
-            top: 25vh;
-            width: 50vw;
-            height: 50vh;
+            width: 100vw;
+            height: 100vh;
         }
         #interaction{
             position:absolute;
@@ -91,7 +89,7 @@
 
         function render()
         {
-            scene.userData.controls.update();
+            // scene.userData.controls.update();
             // object_selection.rendesr(group, scene.userData.camera);
             renderer.render(scene, scene.userData.camera);
             requestAnimationFrame(render);
@@ -121,7 +119,7 @@
         
 
                     // mesh.rotation.set( - Math.PI / 2, Math.PI / 2, 0 );
-                    // mesh.scale.set( 10, 10, 10 );
+                    mesh.scale.set( 10, 10, 10 );
 
                     // mesh.castShadow = true;
                     // mesh.receiveShadow = true;
