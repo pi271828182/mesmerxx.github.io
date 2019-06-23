@@ -164,19 +164,19 @@
 
             start(){
                 // this.initGrid();
-                this.creatAureole();
+                // this.creatAureole();
                 this.initObject();
                 
-                this.ObjectSelection();
+                // this.ObjectSelection();
                 this.render();
             }
 
             render() {
                 this.scene.userData.controls.update();
 
-                if(this.isCatalog == false){
-                    this.object_selection.render(this.group, this.scene.userData.camera);
-                }
+                // if(this.isCatalog == false){
+                //     this.object_selection.render(this.group, this.scene.userData.camera);
+                // }
 
                 this.renderer.render(this.scene, this.scene.userData.camera);
                 requestAnimationFrame(this.render.bind(this));//传递当前语境中的this
