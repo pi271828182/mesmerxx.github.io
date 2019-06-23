@@ -336,40 +336,39 @@
                 }
 
                 var loader = new THREE.STLLoader();
-            var material = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, shininess: 200 } );
+                var material = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, shininess: 200 } );
 
 
-            // Colored binary STL
-            loader.load( './static/model/stl/binary/hand1.stl', 
-                function ( geometry ) {
+                // Colored binary STL
+                loader.load( './static/model/stl/binary/hand1.stl', 
+                    function ( geometry ) {
 
-                    var meshMaterial = material;
-                    if ( geometry.hasColors ) {
+                        var meshMaterial = material;
+                        if ( geometry.hasColors ) {
 
-                        meshMaterial = new THREE.MeshPhongMaterial( { opacity: geometry.alpha, vertexColors: THREE.VertexColors } );
+                            meshMaterial = new THREE.MeshPhongMaterial( { opacity: geometry.alpha, vertexColors: THREE.VertexColors } );
+
+                        }
+
+                        geometry.center();
+
+                        var mesh = new THREE.Mesh( geometry, meshMaterial );
+
+                        mesh.position.set( 0, 0, 0 );
+                        scene.userData.controls.target = mesh.position;//控制焦点
+            
+
+                        mesh.rotation.set( - Math.PI / 2, 0, 0 );
+                        mesh.scale.set( 5, 5, 5 );
+
+                        mesh.castShadow = true;
+                        mesh.receiveShadow = true;
+
+                        // scene.add( mesh );
+                        group.add(mesh);
 
                     }
-
-                    geometry.center();
-
-                    var mesh = new THREE.Mesh( geometry, meshMaterial );
-
-                    // mesh.position.set( 0, 0, 0 );
-                    scene.userData.controls.target = mesh.position;//控制焦点
-        
-
-                    mesh.rotation.set( - Math.PI / 2, 0, 0 );
-                    // mesh.scale.set( 0.5, 0.5, 0.5 );
-
-                    mesh.castShadow = true;
-                    mesh.receiveShadow = true;
-
-                    // scene.add( mesh );
-                    group.add(mesh);
-                    // console.log('模型加载完成');
-
-                }
-            );
+                );
             }
 
             layout(){
