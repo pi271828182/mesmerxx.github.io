@@ -9,63 +9,14 @@
             height: 100%;
             overflow:hidden;
             font-weight:100;
-            {#cursor: url(static/img/cursorYellow.png), auto;#}
         }
         body {
             font-family: 'Roboto', sans-serif;
             font-size: 1em;
-            /*letter-spacing:-0.03em;*/
             height: 100%;
             margin: 0;
         }
-        svg#control {
-            width: 40%;
-            height: 40%;
-            position:relative;
-            left: 23%;
-            top: 30%;
-        }
-        svg.background {
-            width: 100%;
-            height: 100%;
-            position:absolute;
-            z-index: -1;
-        }
-        svg Text {
-            font-size: 0.25em;
-            text-anchor: middle;
-            letter-spacing:-0.03em;
-        }
-
-        svg .bigText {
-            font-size: 0.25em;
-            font-weight:700;
-        }
-
-        svg mask rect {
-            fill: rgba(255, 255, 255, 1);
-        }
-        svg > rect {
-            fill: white;
-            -webkit-mask: url(#mask);
-            mask: url(#mask);
-        }
-        body {
-            /*背景颜色渐变*/
-            /*background: linear-gradient(0deg, #e55d87, #5fc3e4);*/
-            background-image: linear-gradient( 135deg, #FFCF71 10%, #2376DD 100%);
-            background-size: 100% 100%;
-            /*animation: Gradient 4s linear infinite;*/
-        }
-        @keyframes Gradient {
-            /*0%{background-position:50% 0%}*/
-            /*50%{background-position:50% 100%}*/
-            /*100%{background-position:50% 0%}*/
-            0%{background-image:linear-gradient( 135deg, #FFCF71 10%, #2376DD 100%)}
-            /*50%{background-image: linear-gradient( 135deg, #FFD26F 10%, #3677FF 100%);}*/
-            50%{background-image: linear-gradient( 135deg, #FAD7A1 10%, #2376DD 100%);}
-        }
-
+        
         .content{
             float: left;
             width: 100%;
@@ -100,105 +51,22 @@
             height: 99vh;
             z-index: 5;
         }
-        .nextCanvas{
-            /*background-color: aquamarine;*/
-            text-align: center;
-        }
-
-        @keyframes bounce-down {
-            25% {transform: translateY(-3px);}
-            50%{transform: translateY(0);}
-            75% {transform: translateY(3px);}
-            100% {transform: translateY(0);}
-        }
-        .arrow{
-            position: relative;
-            top:48%;
-            width: 16%;
-            left:2vw;
-            animation: bounce-down 1s linear infinite;
-        }
-
-        svg .smallTxt{
-            font-size: 0.2em;
-            font-style: initial;
-            letter-spacing: 0em;
-        }
-
-        .option-item{
-             width: 100%;
-             height: 20%;
-         }
-
-
     </style>
     
 </head>
 <body>
-
-    <svg class="background" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
-        <defs>
-            <mask id="mask" x="0" y="0" width="100" height="100" >
-                <rect x="0" y="0" width="100" height="100"/>
-                <text x="10" y="30" class="smallTxt" style="font-size: 0.16em;">三维</text>
-                <text x="10" y="35" id="home" class="smallTxt">数据可视化</text>
-                <text x="10" y="40" class="smallTxt" style="font-size: 0.16em;">影视应用</text>
-
-                <text x="87.5" y="30" class="smallTxt" style="font-size: 0.15em;">
-                    
-                </text>
-                
-                <text x="89.5" y="58" class="smallTxt">
-                    
-                </text>
-                <text x="89.5" y="69" class="smallTxt" id="nextGraph">
-                   
-                </text>
-            </mask>
-        </defs>
-        <rect x="0" y="0" width="100" height="100"/>
-    </svg>
-
     <div class="content">
         <div class="list-item left"></div>
         <div class="list-item left" id="g1"></div>
         <div class="list-item left" id="g2"></div>
-        <div class="list-item option" id="g3">
-            
-        </div>
+        <div class="list-item option" id="g3"></div>
     </div>
     <div class="content">
-        <div class="list-item left">
-            <svg id="control" viewbox="0 0 140 140">
-                <polygon id="shape" points="45,45 95,45 95,95, 45,95, 45,45" style="fill:#aaa;">
-                    <animate id="animate_to_stop" begin="indefinite " fill="freeze" attributeName="points" dur="200ms" to="45,45 95,45 95,95, 45,95, 45,45" />
-                    <animate id="animate_to_play" begin="indefinite " fill="freeze" attributeName="points" dur="200ms" to="50,40 100,70 50,100, 50,100, 50,40" />
-                </polygon>
-            </svg>
-        </div>
+        <div class="list-item left"></div>
         <div class="list-item left" id="g4"></div>
         <div class="list-item left" id="g5"></div>
-        <div class="list-item nextCanvas" id="g6">
-            <img class="arrow" src="static/svg/arrow.svg">
-        </div>
+        <div class="list-item nextCanvas" id="g6"></div>
     </div>
-
-    <div id="canvas-frame"></div>
-    <div id="worldsvg"></div>
-    <canvas id="svgToCanvas"></canvas>
-
-    <div id="home">
-        <span class="homeSpan">3D data visualization</span>
-        <br>
-        <span class="homeSpan" style="font-size: 1em">基于影视数据</span>
-        <p>
-            <span class="homeSpan">基于影视数据</span>
-        </p>
-    </div>
-
-
-
-
 
     <script src="./static/js/support/three.js" ></script>
     
@@ -210,14 +78,7 @@
 
     <script src="static/js/support/d3.v4.min.js"></script>
     
-
     <script src="static/js/viz3d.js"></script>
-
-    <script>
-        document.getElementsByClassName("arrow")[0].style.display="none";
-        document.getElementById("control").style.display="none";
-        document.getElementById("canvas-frame").style.display="none";
-    </script>
 
     <script>
     var isCatalog = true;
