@@ -6,7 +6,7 @@
     <style>
         html{
             height: 100%;
-            overflow:hidden;
+            /*overflow:hidden;*/
             font-weight:100;
         }
         body {
@@ -54,16 +54,22 @@
 </head>
 <body>
     <div class="content">
-        <div class="list-item left"></div>
         <div class="list-item left" id="g1"></div>
         <div class="list-item left" id="g2"></div>
-        <div class="list-item option" id="g3"></div>
+        <!-- <div class="list-item left" ></div>
+        <div class="list-item"></div> -->
     </div>
     <div class="content">
-        <div class="list-item left"></div>
+        <div class="list-item left"  id="g3"></div>
         <div class="list-item left" id="g4"></div>
-        <div class="list-item left" id="g5"></div>
-        <div class="list-item nextCanvas" id="g6"></div>
+        <div class="list-item left"  id="g5"></div>
+        <!-- <div class="list-item" ></div> -->
+    </div>
+    <div class="content">
+        <div class="list-item left" id="g6"></div>
+        <!-- <div class="list-item left" ></div>
+        <div class="list-item left"></div>
+        <div class="list-item"></div> -->
     </div>
 
     <script src="./static/js/support/three.js" ></script>
@@ -245,9 +251,16 @@
     <script>
         var isCatalog = true;
 
-        var hand = new Model('./static/model/stl/binary/hand1.stl', 'g2', isCatalog);
-        hand.start();
-        hand.group.scale.set(0.7, 0.7, 0.7);
+        var urls = ['./static/model/stl/binary/head1.stl', './static/model/stl/binary/head2.stl',
+                    './static/model/stl/binary/hand1.stl', './static/model/stl/binary/hand2.stl', './static/model/stl/binary/hand3.stl',
+                    './static/model/stl/binary/shoulder.stl']
+        var ids = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6']
+
+        for(var i=0; i<= urls.length; i++){
+            var model = new Model(urls[i], ids[i], isCatalog);
+            model.start();
+        }
+        
 
     </script>
 
