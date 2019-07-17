@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>人物关系</title>
+    <meta charset="utf-8">
+    <style>
+        html{
+            overflow:hidden;
+        }
+        #canvas-frame {
+            position:absolute;
+            width: 100vw;
+            height: 100vh;
+        }
+        #interaction{
+            position:absolute;
+            left:80vw;
+            top:5vh;
+            width: 20vw;
+            height: 20vh;
+            z-index: 10;
+            font-size: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-frame"></div>
+    <div id="interaction">
+        
+    </div>
+    
+    <script src="./static/js/support/three.js" ></script>
+    <script src="./static/js/support/d3.v4.min.js"></script>
+    
+    <script src="./static/js/support/OrbitControls.js" ></script>
+    <script src="./static/js/objSelection.js"></script>
+
+    <script src="./static/js/support/cannon.js"></script>
+    <script src="./static/js/support/DragControls.js"></script>
+
+    <script src="./static/js/GraphStructure.js"></script>
+    
+    <script type="text/javascript">
+        class GraphThree{
+            static scenes;
+            scene;
+            renderer;
+
+            group;
+            threeDiv;//dom对象
+            data;//存放几何体数据，name, length, color
+            object_selection;
+
+            // #FFCF71 10%, #2376DD
+            //d3.color('#5fc3e4'), d3.color('#e55d87')
+            color = d3.interpolate(d3.color('#FFCF71'), d3.color('#2376DD'));//颜色插值函数，网页背景色
+            isCatalog = false;
+
+            constructor(data, renderDivId, isCatalog) {//对象和两个字符串
+                this.isCatalog = isCatalog;
+                this.threeDiv = document.getElementById( renderDivId );
+                this.renderer = new THREE.WebGLRenderer( {antialias: true, alpha: true} );
+                this.renderer.setClearColor( 0xffffff, 0 );
+
+                var width = this.threeDiv.clientWidth;
+                var height = this.threeDiv.clientHeight;
+                this.renderer.setSize(width, height);
+                this.threeDiv.appendChild(this.renderer.domElement);
+
+                // GraphThree.scenes = new Array();
+                this.scene = new THREE.Scene();
+                // GraphThree.scenes.push(this.scene);
+
+                this.group = new THREE.Object3D();
+                this.scene.add(this.group);
+
+                this.scene.userData.element = document.getElementById(renderDivId);
+
+                var camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
+                camera.position.x = 0;
+                camera.position.y = 100;
+                camera.position.z = 300;
+                camera.lookAt(this.group.position);
+                this.scene.add(camera);
+                this.scene.userData.camera = camera;
+
+                var light = new THREE.DirectionalLight(0xffffff, 1.0, 0);
+                light.position.set(-100, 500, 200);
+                this.scene.add(light);
+
+                // var aLight = new THREE.AmbientLight( 0xaaaaaa ); // soft white light
+                // this.scene.add( aLight );
+
+                var orbitControls = new THREE.OrbitControls(this.scene.userData.camera, this.scene.userData.element);
+                orbitControls.target = this.group.position;//控制焦点
+                orbitControls.autoRotate = true;//自动旋转
+                this.scene.userData.controls = orbitControls;
+
+                this.data = data;
+            }
+
+            //光圈
+            creatAureole(){
+                //顶点着色器
+                var vertexShader = [
+                'varying vec3   vVertexWorldPosition;',
+                'varying vec3   vVertexNormal;',
+                'varying vec4   vFragColor;',
+                'void main(){',
+                '   vVertexNormal   = normalize(normalMatrix * normal);',//将法线转换到视图坐标系中
+                '   vVertexWorldPosition    = (modelMatrix * vec4(position, 1.0)).xyz;',//将顶点转换到世界坐标系中
+                '   // set gl_Position',
+                '   gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
+                '}'
+
+            ].join('\n');
+                //大气层效果
+                THREE.AeroSphere = {
+                    uniforms: {
+                        coeficient: {
+                            type: "f",
+                            value: 1.0
+                        },
+                        power: {
+                            type: "f",
+                            value: 2
+                        },
+                        glowColor: {
+                            type: "c",
+                            value: new THREE.Color(0xfff5eb)
+                        }
+                    },
+                    vertexShader: vertexShader,//顶点着色器
+                    fragmentShader: [
+                        'uniform vec3   glowColor;',
+                        'uniform float  coeficient;',
+                        'uniform float  power;',
+
+                        'varying vec3   vVertexNormal;',
+                        'varying vec3   vVertexWorldPosition;',
+
+                        'varying vec4   vFragColor;',
+
+                        'void main(){',
+                        '   vec3 worldCameraToVertex= vVertexWorldPosition - cameraPosition;',  //世界坐标系中从相机位置到顶点位置的距离
+                        '   vec3 viewCameraToVertex = (viewMatrix * vec4(worldCameraToVertex, 0.0)).xyz;',//视图坐标系中从相机位置到顶点位置的距离
+                        '   viewCameraToVertex  = normalize(viewCameraToVertex);',//规一化
+                        '   float intensity     = pow(coeficient + dot(vVertexNormal, viewCameraToVertex), power);',
+                        '   gl_FragColor        = vec4(glowColor, intensity);',
+                        '}'//vVertexNormal视图坐标系中点的法向量
+                        //viewCameraToVertex视图坐标系中点到摄像机的距离向量
+                        //dot点乘得到它们的夹角的cos值
+                        //从中心向外面角度越来越小（从钝角到锐角）从cos函数也可以知道这个值由负变正，不透明度最终从低到高
+                    ].join('\n')
+                };
+                //大气层
+                var material1 = new THREE.ShaderMaterial({
+                    uniforms: THREE.AeroSphere.uniforms,
+                    vertexShader: THREE.AeroSphere.vertexShader,
+                    fragmentShader: THREE.AeroSphere.fragmentShader,
+                    blending: THREE.NormalBlending,
+                    transparent: true,
+                    depthWrite:false
+                });
+                var sphere = new THREE.SphereBufferGeometry(120, 32, 32);
+                var mesh = new THREE.Mesh(sphere, material1);
+                this.scene.add(mesh);
+            }
+
+            drawSVG(geo_data) {
+                var that = this;
+                var margin = 0,
+                        width = 2048,
+                        height = 1024;
+                var svg = d3.select("#worldsvg")
+                        .append("svg")
+                        .attr("xmlns", "http://www.w3.org/2000/svg")
+                        .attr("version", "1.1")
+                        .attr("width", width + margin)
+                        .attr("height", height + margin)
+                var projection = d3.geoMercator()
+                        .scale(200)
+                        .translate([760, 470]);
+                var path = d3.geoPath().projection(projection);
+                var map = svg.selectAll('path')
+                        .data(geo_data.features)
+                        .enter()
+                        .append('path')
+                        .attr('d', path)
+                        .attr('title', function (d) {
+                            return d.properties.name;
+                        })
+                        .attr('id', function (d) {
+                            return d.id;
+                        })
+                        .style('fill', function(d){
+                            var countryColor;
+                            if(filmNum[d.properties.name]){
+                                var num = filmNum[d.properties.name];
+                                if(num < 10){
+                                    countryColor = that.color(0);
+                                }
+                                else if (num<100) {
+                                    countryColor = that.color(0.15);
+                                }
+                                else if (num<500) {
+                                    countryColor =that.color(0.3);
+                                }
+                                else if (num<1000) {
+                                    countryColor =that.color(0.45);
+                                }
+                                else if (num<3000) {
+                                    countryColor = that.color(0.6);
+                                }
+                                else if (num<5000) {
+                                    countryColor = that.color(0.75);
+                                }
+                                else if (num<10000) {
+                                    countryColor = that.color(0.9);
+                                }
+                                else{
+                                    countryColor = that.color(1);
+                                }
+                            }
+                            else{
+                                countryColor = '#f4f9f4';
+                            }
+                            return countryColor;
+                        })
+                        .style('stroke', 'black')
+                        .style('stroke-width', 0.4);
+            }
+
+            //加载纹理
+            getTexture(str){//str为纹理url
+                var loader = new THREE.TextureLoader();
+                 return loader.load(str);
+            }
+
+            initGrid(){
+                //平面
+                var gridXZ = new THREE.GridHelper(200, 10, 0xa23131, 0xa23131);//4个参数分别是：网格宽度、等分数、中心线颜色，网格线颜色
+                gridXZ.position.set( 0,0,0 );
+                gridXZ.material.linewidth = 10;
+                this.scene.add(gridXZ);
+                if(this.isCatalog){
+                    gridXZ.scale.set(0.6, 0.6, 0.6)
+                }
+            }
+        }
+
+        class ForceDerict extends GraphThree{
+            graph;
+            dragObjects;//存放拖拽对象mesh
+            world;//物理对象
+            onDrag;//是否在拖拽中
+            colorD3 = d3.scaleOrdinal(d3.schemeCategory10);
+
+            constructor(data, threeDivId, isCatalog){
+                super(data, threeDivId, isCatalog);
+            }
+
+            applyForce() {
+                var that = this;
+                var nodes = this.graph.nodes;
+                var edges = this.graph.edges;
+                if (!that.onDrag)
+                {
+                    //计算质心
+                    let massCenter = new THREE.Vector3(0, 0, 0);
+                    nodes.forEach(value => {
+                        massCenter.add(value.pbody.position);
+                    });
+                    massCenter.divideScalar(nodes.length);
+                    //计算向心力
+                    let maxForce = 10 * massCenter.sub(new THREE.Vector3(0, 0, 0)).length();
+                    let forceCenter = massCenter.negate().clampLength(maxForce, Math.ceil(maxForce));
+                    //console.log(forceCenter);
+                    //添加向心力
+                    nodes.forEach(node => {
+                        node.pbody.force.copy(node.pbody.force.vadd(forceCenter));
+                    });
+                }
+                var camera = this.scene.userData.camera;
+                nodes.forEach(value => {
+                    value.body.position.copy(value.pbody.position);
+                    value.body.quaternion.copy(value.pbody.quaternion);
+                    //计算文本位置
+                    let ray = camera.position.clone().sub(value.pbody.position).clampLength(11, 12).add(value.pbody.position);
+                    value.text.position.copy(ray);
+                    //添加斥力
+                    nodes.forEach(node => {
+                        if (node !== value && node.pbody.type === CANNON.Body.DYNAMIC)
+                        {
+                            let distance = new THREE.Vector3().copy(node.pbody.position).distanceTo(value.pbody.position);
+                            let maxForce = 100000;
+                            let force = new THREE.Vector3().copy(node.pbody.position).sub(value.pbody.position).clampLength(maxForce / distance ** 2, Math.ceil(maxForce / distance ** 2));
+                            node.pbody.force.copy(node.pbody.force.vadd(force));
+                        }
+                    });
+                });
+                edges.forEach(value => {
+                    value.body.geometry.verticesNeedUpdate = true;
+                });
+            }
+
+            drawNode(nodes) {
+                var that = this;
+                nodes.forEach((value, index) => {
+                    function createText()
+                    {
+                        let canvas = document.createElement("canvas");
+                        canvas.width = 512;
+                        canvas.height = 512;
+                        let ctx = canvas.getContext("2d");
+                        ctx.fillStyle = "#000000";
+                        ctx.font = "75px Yahei";
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(value.data.name, 256, 256, 512);
+                        let spriteMap = new THREE.CanvasTexture(canvas);
+                        spriteMap.needsUpdate = true;
+                        let spriteMaterial = new THREE.SpriteMaterial({map: spriteMap});
+                        let sprite = new THREE.Sprite(spriteMaterial);
+                        sprite.scale.set(30, 30, 1);
+                        that.group.add(sprite);//改
+                        value.text = sprite;
+                        sprite.data = value;
+                        return sprite
+                    }
+
+                    createText();
+
+                    function createBody()
+                    {
+                        let sphere_geometry = new THREE.SphereGeometry(10, 30, 30);
+                        if (value.data.post != 'movie') {
+                            sphere_geometry = new THREE.SphereGeometry(8, 30, 30);
+                        }
+                        let sphere_material = new THREE.MeshPhongMaterial({
+                            color: that.colorD3(Math.floor(Math.random()*10)),//that.color(Math.random()),
+                            transparent: true,
+                            opacity: 0.8,
+                            // wireframe: true
+                        });
+                        if (value.id == 0){
+                            sphere_material.color = new THREE.Color( 0xff5959 );
+                        }
+                        if (value.data.post == 'movie') {
+                            sphere_material.color = new THREE.Color( 0xf09c67 );
+                        }
+                        if (value.data.post == 'director') {
+                            sphere_material.color = new THREE.Color( 0xf09c67 );
+                        }
+                        let sphere = new THREE.Mesh(sphere_geometry, sphere_material);
+                        sphere.frustumCulled = false;
+                        {
+                            let num = nodes.length;
+                            let radius = 50 * num / 2 / Math.PI;
+                            sphere.position.set(Math.cos(2 * Math.PI / num * index) * radius, Math.sin(2 * Math.PI / num * index) * radius, 0);
+                        }
+                        that.group.add(sphere);//改
+                        that.dragObjects.push(sphere);
+                        value.body = sphere;
+                        sphere.data = value;
+                        return sphere;
+                    }
+
+                    let sphere = createBody();
+
+                    let sphere_body = new CANNON.Body({
+                        mass: 1,
+                        shape: new CANNON.Sphere(10),
+                        linearDamping: 0.9,
+                        angularDamping: 0.9
+                    });
+                    sphere_body.position.copy(sphere.position);
+                    sphere_body.fixedRotation = true;
+                    that.world.addBody(sphere_body);
+                    value.pbody = sphere_body;
+                });
+            }
+
+            drawEdge(edges) {
+                var that = this;
+                edges.forEach((value => {
+                    let material = new THREE.LineBasicMaterial({vertexColors: true, side: THREE.DoubleSide});
+                    let geometry = new THREE.Geometry();
+
+                    geometry.vertices.push(value.source.body.position);
+                    geometry.vertices.push(value.target.body.position);
+                    geometry.colors.push(value.source.body.material.color, value.target.body.material.color);
+                    let line = new THREE.Line(geometry, material);
+                    line.castShadow = true;
+                    line.receiveShadow = true;
+                    line.frustumCulled = false;
+                    that.group.add(line);//改
+                    value.body = line;
+
+                    value.source.data.friend.push(value.target);
+                    value.target.data.friend.push(value.source);
+
+                    let pbodyA = value.source.pbody;
+                    let pbodyB = value.target.pbody;
+                    let constraint = new CANNON.DistanceConstraint(pbodyA, pbodyB, 65, 100);
+                    that.world.addConstraint(constraint);
+                }));
+            }
+
+            initObject(){
+                var aLight = new THREE.AmbientLight( 0xeeeeee );
+                this.scene.add( aLight );
+
+                var that = this;
+
+                // that.scene.userData.camera.position.z += 100;
+                that.world = new CANNON.World();
+                that.world.gravity.set(0, 0, 0);
+                that.world.solver.iterations = 20;
+
+                that.dragObjects = [];
+
+                that.graph = new GRAPHVIS.Graph();//图
+                //结点
+                for(let i=0; i<that.data.nodes.length; i++){
+                    var node = new GRAPHVIS.Node(nodes[i]);
+                    that.graph.nodeSet[node.id] = node;
+                    that.graph.nodes.push(node);//结点加入图中
+                }
+                //边
+                var nodes_graph = that.graph.nodeSet;//改
+                for(let i=0; i<that.data.links.length; i++){
+                    var startNodeId = links[i].source;
+                    var endNodeId = links[i].target;
+                    var edge = new GRAPHVIS.Edge(nodes_graph[startNodeId], nodes_graph[endNodeId]);
+                    that.graph.edges.push(edge);
+
+                    nodes_graph[startNodeId].data.friend.push(nodes_graph[endNodeId]);
+                    nodes_graph[endNodeId].data.friend.push(nodes_graph[startNodeId]);
+                }
+
+                this.drawNode(this.graph.nodes);
+                this.drawEdge(this.graph.edges);
+
+
+                var controls = that.scene.userData.controls;
+                that.onDrag = false;
+                let existMouseMove = false;
+                var dragControls = new THREE.DragControls(that.dragObjects, that.scene.userData.camera, this.renderer.domElement);
+                dragControls.addEventListener('hoveron', function (event) {
+                    let friends = event.object.data.data.friend;
+                    for (let i in friends){
+                        friends[i].body.material.color = new THREE.Color( '#ff8364' );
+                    }
+
+                    controls.enabled = false;
+                });
+                dragControls.addEventListener('hoveroff', function (event) {
+                    let friends = event.object.data.data.friend;
+                    for (let i in friends){
+                        // friends[i].body.material.color = new THREE.Color( that.color(Math.random()) );
+                        friends[i].body.material.color = new THREE.Color( that.colorD3(Math.floor(Math.random()*10)) );
+
+                        let value = friends[i];
+                        let sphere_material = friends[i].body.material;
+                        if (value.data.post == 'movie') {
+                            sphere_material.color = new THREE.Color( 0xf09c67 );
+                        }
+                        if (value.data.post == 'director') {
+                            sphere_material.color = new THREE.Color( 0xf09c67 );
+                        }
+                        if (value.id == 0){
+                            sphere_material.color = new THREE.Color( 0xff5959 );
+                        }
+                    }
+                    // event.object.material.color = new THREE.Color( that.color(Math.random()) );
+
+                    controls.enabled = true;
+                });
+                dragControls.addEventListener('dragstart', function (event) {
+                    event.object.data.pbody.type = CANNON.Body.KINEMATIC;//data=node
+                    event.object.data.pbody.updateMassProperties();
+                    that.onDrag = true;
+                });
+                dragControls.addEventListener('drag', function (event) {
+                    event.object.data.pbody.position.copy(event.object.position);
+                    existMouseMove = true;
+                });
+                dragControls.addEventListener('dragend', function (event) {
+                    event.object.data.pbody.type = CANNON.Body.DYNAMIC;
+                    event.object.data.pbody.updateMassProperties();
+                    that.onDrag = false;
+                    if (!existMouseMove && !!event.object.data.url && event.object.data.url !== '')
+                    {
+                        window.top.open(event.object.data.url);
+                    }
+                    existMouseMove = false;
+                });
+            }
+
+            start(){
+                // this.initGrid();
+                // this.creatAureole();
+                this.initObject();
+                let preSimulate = 5;
+                let tick = 0.02;
+                console.time();
+                for (let i = 0; i < preSimulate / tick; i++)
+                {
+                    this.world.step(tick);
+                    this.applyForce();
+                }
+                console.timeEnd();
+                this.lastTime = performance.now();
+                this.render(this.lastTime);
+            }
+
+            render(now) {
+                let timeSpan = now - this.lastTime;
+                this.lastTime = now;
+                if (timeSpan > 0)
+                {
+                    this.world.step(Math.min(timeSpan, 100) / 1000);
+                    this.applyForce();
+                }
+                this.scene.userData.controls.update();
+
+                this.renderer.render(this.scene, this.scene.userData.camera);
+                requestAnimationFrame(this.render.bind(this));//传递当前语境中的this
+            }
+        }
+    </script>
+
+    <script type="text/javascript">
+        var nodes = [{'id': 0, 'name': '周迅', 'position': 'actor'}, {'id': 1, 'name': '明月几时有', 'position': 'movie'}, {'id': 3, 'name': '王菀之', 'position': 'actor'}, {'id': 4, 'name': '许鞍华', 'position': 'director'}, {'id': 5, 'name': '霍建华', 'position': 'actor'}, {'id': 6, 'name': '彭于晏', 'position': 'actor'}, {'id': 7, 'name': '叶德娴', 'position': 'actor'}, {'id': 8, 'name': '郭涛', 'position': 'actor'}, {'id': 9, 'name': '春夏', 'position': 'actor'}];
+        var links = [{'source': 0, 'target': 1}, {'source': 1, 'target': 3}, {'source': 1, 'target': 4}, {'source': 1, 'target': 5}, {'source': 1, 'target': 6}, {'source': 1, 'target': 7}, {'source': 1, 'target': 8}, {'source': 1, 'target': 9}];
+
+        var forceOptions = {
+                nodes:nodes,//顶点
+                links:links//边
+        };
+
+        var force = new ForceDerict(forceOptions, 'canvas-frame', false);
+        force.start();
+    </script>
+
+</body>
+</html>
+
+
