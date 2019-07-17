@@ -62,6 +62,7 @@
             this.position = {};//位置
             this.body;//sphere物体，与上相同
             this.pbody;//物理对象
+            this.lines = [];
         };
 
         //边数据结构
@@ -292,6 +293,7 @@
             world;//物理对象
             onDrag;//是否在拖拽中
             colorD3 = d3.scaleOrdinal(d3.schemeCategory10);
+            // colorD3= d3.interpolate(d3.color('#FFCF71'), d3.color('#2376DD'));
 
             constructor(data, threeDivId, isCatalog){
                 super(data, threeDivId, isCatalog);
@@ -340,11 +342,6 @@
                     value.body.geometry.verticesNeedUpdate = true;
 
                     //计算文本位置
-                    // let ray = camera.position.clone().sub(value.pbody.position).clampLength(11, 12).add(value.pbody.position);
-                    // value.text.position.copy(value.body.position);
-                    // console.log('线位置：', value.body);
-
-                    // let ray = camera.position.clone().add(value.source.pbody.position).clampLength(11, 12).add(value.source.pbody.position);
                     value.text.position.set((value.source.pbody.position.x + value.target.pbody.position.x)/2, (value.source.pbody.position.y + value.target.pbody.position.y)/2, (value.source.pbody.position.z + value.target.pbody.position.z)/2 );
                 });
             }
@@ -376,14 +373,14 @@
 
                     createText();
 
-                    function createBody()
+                    function createBody(index)
                     {
-                        let sphere_geometry = new THREE.SphereGeometry(10, 30, 30);
-                        if (value.data.post != 'movie') {
-                            sphere_geometry = new THREE.SphereGeometry(8, 30, 30);
+                        let sphere_geometry = new THREE.SphereGeometry(7, 30, 30);
+                        if (value.data.post == '1') {
+                            sphere_geometry = new THREE.SphereGeometry(10, 30, 30);
                         }
                         let sphere_material = new THREE.MeshPhongMaterial({
-                            color: that.colorD3(Math.floor(Math.random()*10)),//that.color(Math.random()),
+                            color: that.colorD3(index/20),//that.color(Math.random()),Math.floor(Math.random()*10)
                             transparent: true,
                             opacity: 0.8,
                             // wireframe: true
@@ -392,11 +389,11 @@
                         //     sphere_material.color = new THREE.Color( 0xff5959 );
                         // }
                         if (value.data.post == '1') {
-                            sphere_material.color = new THREE.Color( 0xf09c67 );
+                            sphere_material.color = new THREE.Color( 0xfab95b );
                         }
-                        // if (value.data.post == 'director') {
-                        //     sphere_material.color = new THREE.Color( 0xf09c67 );
-                        // }
+                        if (value.data.post == '2') {
+                            sphere_material.color = new THREE.Color( 0x5ca0d3 );
+                        }
                         let sphere = new THREE.Mesh(sphere_geometry, sphere_material);
                         sphere.frustumCulled = false;
                         {
@@ -411,7 +408,7 @@
                         return sphere;
                     }
 
-                    let sphere = createBody();
+                    let sphere = createBody(index);
 
                     let sphere_body = new CANNON.Body({
                         mass: 1,
@@ -434,20 +431,22 @@
 
                     geometry.vertices.push(value.source.body.position);
                     geometry.vertices.push(value.target.body.position);
-                    geometry.colors.push(value.source.body.material.color, value.target.body.material.color);
+                    geometry.colors.push(new THREE.Color(0xfbd1b7), new THREE.Color(0xd3f6f3));
                     let line = new THREE.Line(geometry, material);
                     line.castShadow = true;
                     line.receiveShadow = true;
                     line.frustumCulled = false;
+
                     that.group.add(line);//改
                     value.body = line;
+                    
 
                     value.source.data.friend.push(value.target);
                     value.target.data.friend.push(value.source);
 
                     let pbodyA = value.source.pbody;
                     let pbodyB = value.target.pbody;
-                    let constraint = new CANNON.DistanceConstraint(pbodyA, pbodyB, 70, 50);
+                    let constraint = new CANNON.DistanceConstraint(pbodyA, pbodyB, 75, 30);
                     that.world.addConstraint(constraint);
 
                     function createText()
@@ -456,8 +455,8 @@
                         canvas.width = 512;
                         canvas.height = 512;
                         let ctx = canvas.getContext("2d");
-                        ctx.fillStyle = "#000000";
-                        ctx.font = "75px Yahei";
+                        ctx.fillStyle = "#393e46";
+                        ctx.font = "65px Yahei";
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';
                         ctx.fillText(value.relation, 256, 256, 512);
@@ -506,6 +505,9 @@
 
                     nodes_graph[startNodeId].data.friend.push(nodes_graph[endNodeId]);
                     nodes_graph[endNodeId].data.friend.push(nodes_graph[startNodeId]);
+
+                    nodes_graph[startNodeId].lines.push(edge);
+                    nodes_graph[endNodeId].lines.push(edge);
                 }
 
                 this.drawNode(this.graph.nodes);
@@ -517,32 +519,27 @@
                 let existMouseMove = false;
                 var dragControls = new THREE.DragControls(that.dragObjects, that.scene.userData.camera, this.renderer.domElement);
                 dragControls.addEventListener('hoveron', function (event) {
-                    let friends = event.object.data.data.friend;
-                    for (let i in friends){
-                        friends[i].body.material.color = new THREE.Color( '#ff8364' );
+                    // let friends = event.object.data.data.friend;
+                    // for (let i in friends){
+                    //     friends[i].body.material.color = new THREE.Color( '#ff4057' );
+                    // }
+
+                    controls.autoRotate = false;
+
+                    let lines = event.object.data.lines;
+                    for (let i in lines){
+                        lines[i].body.material.color = new THREE.Color( '#0075f6' );
                     }
 
                     controls.enabled = false;
                 });
                 dragControls.addEventListener('hoveroff', function (event) {
-                    let friends = event.object.data.data.friend;
-                    for (let i in friends){
-                        // friends[i].body.material.color = new THREE.Color( that.color(Math.random()) );
-                        friends[i].body.material.color = new THREE.Color( that.colorD3(Math.floor(Math.random()*10)) );
-
-                        let value = friends[i];
-                        let sphere_material = friends[i].body.material;
-                        if (value.data.post == 'movie') {
-                            sphere_material.color = new THREE.Color( 0xf09c67 );
-                        }
-                        if (value.data.post == 'director') {
-                            sphere_material.color = new THREE.Color( 0xf09c67 );
-                        }
-                        if (value.id == 0){
-                            sphere_material.color = new THREE.Color( 0xff5959 );
-                        }
+                    let lines = event.object.data.lines;
+                    for (let i in lines){
+                        lines[i].body.material.color = new THREE.Color( '#0xd3f6f3' );
                     }
-                    // event.object.material.color = new THREE.Color( that.color(Math.random()) );
+
+                    controls.autoRotate = true;
 
                     controls.enabled = true;
                 });
