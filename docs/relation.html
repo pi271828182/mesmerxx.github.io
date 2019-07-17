@@ -38,7 +38,44 @@
     <script src="./static/js/support/cannon.js"></script>
     <script src="./static/js/support/DragControls.js"></script>
 
-    <script src="./static/js/GraphStructure.js"></script>
+    <!-- <script src="./static/js/GraphStructure.js"></script> -->
+    <script type="text/javascript">
+        //图数据结构
+        var GRAPHVIS = {};
+
+        GRAPHVIS.Graph = function() {
+            this.nodeSet = {};
+            this.nodes = [] ;
+            this.edges = [];
+        };
+
+        //结点数据结构
+
+        GRAPHVIS.Node = function(node_data) {
+            this.id = node_data.id;
+            this.nodesTo = [];//指向的结点集合
+            this.nodesFrom = [];
+            this.data = {};
+            this.data.name = node_data.name;//名字
+            this.data.post = node_data.position;//身份
+            this.data.friend = [];//与之相连的点
+            this.position = {};//位置
+            this.body;//sphere物体，与上相同
+            this.pbody;//物理对象
+        };
+
+        //边数据结构
+
+        GRAPHVIS.Edge = function(source, target, relation) {
+          this.source = source;
+          this.target = target;
+          this.relation = relation;
+          this.data = {};
+          this.body//mesh对象
+        };
+
+
+    </script>
     
     <script type="text/javascript">
         class GraphThree{
@@ -301,6 +338,14 @@
                 });
                 edges.forEach(value => {
                     value.body.geometry.verticesNeedUpdate = true;
+
+                    //计算文本位置
+                    // let ray = camera.position.clone().sub(value.pbody.position).clampLength(11, 12).add(value.pbody.position);
+                    // value.text.position.copy(value.body.position);
+                    // console.log('线位置：', value.body);
+
+                    // let ray = camera.position.clone().add(value.source.pbody.position).clampLength(11, 12).add(value.source.pbody.position);
+                    value.text.position.set((value.source.pbody.position.x + value.target.pbody.position.x)/2, (value.source.pbody.position.y + value.target.pbody.position.y)/2, (value.source.pbody.position.z + value.target.pbody.position.z)/2 );
                 });
             }
 
@@ -343,15 +388,15 @@
                             opacity: 0.8,
                             // wireframe: true
                         });
-                        if (value.id == 0){
-                            sphere_material.color = new THREE.Color( 0xff5959 );
-                        }
-                        if (value.data.post == 'movie') {
+                        // if (value.id == 0){
+                        //     sphere_material.color = new THREE.Color( 0xff5959 );
+                        // }
+                        if (value.data.post == '1') {
                             sphere_material.color = new THREE.Color( 0xf09c67 );
                         }
-                        if (value.data.post == 'director') {
-                            sphere_material.color = new THREE.Color( 0xf09c67 );
-                        }
+                        // if (value.data.post == 'director') {
+                        //     sphere_material.color = new THREE.Color( 0xf09c67 );
+                        // }
                         let sphere = new THREE.Mesh(sphere_geometry, sphere_material);
                         sphere.frustumCulled = false;
                         {
@@ -402,8 +447,32 @@
 
                     let pbodyA = value.source.pbody;
                     let pbodyB = value.target.pbody;
-                    let constraint = new CANNON.DistanceConstraint(pbodyA, pbodyB, 65, 100);
+                    let constraint = new CANNON.DistanceConstraint(pbodyA, pbodyB, 70, 50);
                     that.world.addConstraint(constraint);
+
+                    function createText()
+                    {
+                        let canvas = document.createElement("canvas");
+                        canvas.width = 512;
+                        canvas.height = 512;
+                        let ctx = canvas.getContext("2d");
+                        ctx.fillStyle = "#000000";
+                        ctx.font = "75px Yahei";
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(value.relation, 256, 256, 512);
+                        let spriteMap = new THREE.CanvasTexture(canvas);
+                        spriteMap.needsUpdate = true;
+                        let spriteMaterial = new THREE.SpriteMaterial({map: spriteMap});
+                        let sprite = new THREE.Sprite(spriteMaterial);
+                        sprite.scale.set(30, 30, 1);
+                        that.group.add(sprite);//改
+                        value.text = sprite;
+                        sprite.data = value;
+                        return sprite
+                    }
+
+                    createText();
                 }));
             }
 
@@ -432,7 +501,7 @@
                 for(let i=0; i<that.data.links.length; i++){
                     var startNodeId = links[i].source;
                     var endNodeId = links[i].target;
-                    var edge = new GRAPHVIS.Edge(nodes_graph[startNodeId], nodes_graph[endNodeId]);
+                    var edge = new GRAPHVIS.Edge(nodes_graph[startNodeId], nodes_graph[endNodeId], links[i].relation);
                     that.graph.edges.push(edge);
 
                     nodes_graph[startNodeId].data.friend.push(nodes_graph[endNodeId]);
@@ -532,8 +601,61 @@
     </script>
 
     <script type="text/javascript">
-        var nodes = [{'id': 0, 'name': '周迅', 'position': 'actor'}, {'id': 1, 'name': '明月几时有', 'position': 'movie'}, {'id': 3, 'name': '王菀之', 'position': 'actor'}, {'id': 4, 'name': '许鞍华', 'position': 'director'}, {'id': 5, 'name': '霍建华', 'position': 'actor'}, {'id': 6, 'name': '彭于晏', 'position': 'actor'}, {'id': 7, 'name': '叶德娴', 'position': 'actor'}, {'id': 8, 'name': '郭涛', 'position': 'actor'}, {'id': 9, 'name': '春夏', 'position': 'actor'}];
-        var links = [{'source': 0, 'target': 1}, {'source': 1, 'target': 3}, {'source': 1, 'target': 4}, {'source': 1, 'target': 5}, {'source': 1, 'target': 6}, {'source': 1, 'target': 7}, {'source': 1, 'target': 8}, {'source': 1, 'target': 9}];
+        var nodes = [{'id': 0, 'name': '李思纯', 'position': '1'}, 
+                    {'id': 1, 'name': '王若雨', 'position': '1'},
+                    {'id': 2, 'name': '陈穗', 'position': '1'}, 
+                    {'id': 3, 'name': '朱曦', 'position': '1'},
+
+                    {'id': 4, 'name': '尹诚', 'position': '2'}, 
+                    {'id': 5, 'name': '陆月', 'position': '2'}, 
+                    {'id': 6, 'name': '方海博', 'position': '2'}, 
+                    {'id': 7, 'name': '小倩', 'position': '2'}, 
+
+                    {'id': 8, 'name': '老周', 'position': '2'}, 
+                    {'id': 9, 'name': '马文博', 'position': '2'}, 
+                    {'id': 10, 'name': '李雨萌', 'position': '2'}, 
+                    {'id': 11, 'name': '郭闯', 'position': '2'}, 
+                    {'id': 12, 'name': '侯小姐', 'position': '2'}, 
+                    {'id': 13, 'name': '汪智辰', 'position': '2'}, 
+                    {'id': 14, 'name': '刘佚凡', 'position': '2'}, 
+                    {'id': 15, 'name': '叶蓁', 'position': '2'}, 
+                    {'id': 16, 'name': '苏晗', 'position': '2'}];
+
+
+        var links = [{'source': 0, 'target': 4, 'relation': '暗恋'}, 
+                    {'source': 0, 'target': 5, 'relation': '顾客' }, 
+                    {'source': 0, 'target': 6, 'relation': '前任' }, 
+                    {'source': 0, 'target': 7, 'relation': '好友' }, 
+
+                    {'source': 4, 'target': 8, 'relation': '父子' }, 
+                    {'source': 9, 'target': 4, 'relation': '供应商' }, 
+                    {'source': 10, 'target': 4, 'relation': '医患' }, 
+
+                    {'source': 8, 'target': 2, 'relation': '约稿顾客' }, 
+                    {'source': 8, 'target': 12, 'relation': '传说中的情人/上下级' }, 
+
+                    {'source': 6, 'target': 11, 'relation': '房东/租客' }, 
+                    {'source': 6, 'target': 1, 'relation': '房东/租客' }, 
+
+                    {'source': 10, 'target': 15, 'relation': '前任' }, 
+
+                    {'source': 9, 'target': 2, 'relation': '男闺蜜' }, 
+                    {'source': 2, 'target': 5, 'relation': '-' }, 
+                    {'source': 5, 'target': 7, 'relation': '顾客' }, 
+                    {'source': 2, 'target': 14, 'relation': '恋人' }, 
+                    {'source': 14, 'target': 1, 'relation': '在同一个公司工作' }, 
+                    {'source': 2, 'target': 16, 'relation': '情人' }, 
+                    {'source': 16, 'target': 3, 'relation': '前夫' }, 
+                    {'source': 7, 'target': 3, 'relation': '店长/店员' }, 
+                    {'source': 3, 'target': 15, 'relation': '恋人' }, 
+
+                    {'source': 15, 'target': 12, 'relation': '教练' }, 
+                    {'source': 15, 'target': 1, 'relation': '教练' }, 
+
+                    {'source': 1, 'target': 11, 'relation': '恋人' }, 
+                    {'source': 1, 'target': 12, 'relation': '“恋人”/上下级' }, 
+                    {'source': 13, 'target': 1, 'relation': '同事/性骚扰' }, 
+                    {'source': 13, 'target': 12, 'relation': '同事/性骚扰' }];
 
         var forceOptions = {
                 nodes:nodes,//顶点
@@ -546,5 +668,3 @@
 
 </body>
 </html>
-
-
