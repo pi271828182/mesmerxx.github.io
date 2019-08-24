@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>test</title>
+    <meta charset="utf-8">
+    <style>
+        html{
+            overflow:hidden;
+        }
+        #canvas-frame {
+            position:absolute;
+            width: 100vw;
+            height: 100vh;
+        }
+        #interaction{
+            position:absolute;
+            left:80vw;
+            top:5vh;
+            width: 20vw;
+            height: 20vh;
+            z-index: 10;
+	        font-size: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-frame"></div>
+    <div id="interaction"></div>
+
+    <script type="x-shader/x-vertex" id="vertexshader">
+        attribute float size;
+        varying vec3 vColor;
+
+        void main() {
+            vColor = color;
+            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+            gl_PointSize = size * ( 300.0 / -mvPosition.z );
+            gl_Position = projectionMatrix * mvPosition;
+        }
+    </script>
+
+    <script type="x-shader/x-fragment" id="fragmentshader">   
+        uniform sampler2D pointTexture;
+        varying vec3 vColor;
+
+        void main() {
+            gl_FragColor = vec4( vColor, 1.0 ); 
+            gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord ); 
+        }
+    </script>
+
+    <!-- </script>
+ -->    
+    <script src="./static/js/support/three.js" ></script>
+    <script src="./static/js/support/d3.v4.min.js"></script>
+    
+    <script src="./static/js/support/OrbitControls.js" ></script>
+    <script src="./static/js/objSelection.js"></script>
+
+           
+    <script type="text/javascript">
+
+
+
+    // <script type="module">
+        
+        // import * as THREE from "./static/js/build/three.module.js"
+        // import { OrbitControls } from "./static/js/support/controls/OrbitControls.js"
+        // import  "./static/js/objSelection.js"
+        
+
+
+        var threeDiv = document.getElementById( 'canvas-frame' );
+        var renderer = new THREE.WebGLRenderer( {antialias: true} );//, alpha: true，不然着色器的材质底色是黑色，得调成黑色以掩盖
+        renderer.setClearColor( 0xffffff, 0 );
+
+        var width = threeDiv.clientWidth;
+        var height = threeDiv.clientHeight;
+        renderer.setSize(width, height);
+        threeDiv.appendChild(renderer.domElement);
+
+        var scene = new THREE.Scene();
+
+        var group = new THREE.Object3D();
+        scene.add(this.group);
+
+        scene.userData.element = threeDiv;
+
+        var camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
+        camera.position.x = 0;
+        camera.position.y = 100;
+        camera.position.z = 300;
+        camera.lookAt(group.position);
+        scene.add(camera);
+        scene.userData.camera = camera;
+
+        var light = new THREE.DirectionalLight(0xffffff, 1.0, 0);
+        light.position.set(-100, 500, 200);
+        scene.add(light);
+
+        var aLight = new THREE.AmbientLight( 0xaaaaaa );
+        scene.add( aLight );
+
+        var orbitControls = new THREE.OrbitControls(scene.userData.camera, scene.userData.element);
+        orbitControls.target = group.position;//控制焦点
+        orbitControls.autoRotate = true;//自动旋转
+        scene.userData.controls = orbitControls;
+
+        var particleSystem, uniforms, geometry;
+
+        var particles = 10000;
+
+        initGrid();
+        initObject();
+        
+        // var object_selection;
+        // ObjectSelection();
+        animate();
+
+
+        window.addEventListener( 'resize', onWindowResize, false );
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize( window.innerWidth, window.innerHeight );
+
+        }
+
+        function initGrid(){
+            //平面
+            var gridXZ = new THREE.GridHelper(200, 10, 0xa23131, 0xa23131);//4个参数分别是：网格宽度、等分数、中心线颜色，网格线颜色
+            gridXZ.position.set( 0,0,0 );
+            gridXZ.material.linewidth = 10;
+            scene.add(gridXZ);
+        }
+
+        function animate() {
+
+            requestAnimationFrame( animate );
+
+            render();
+
+        }
+
+
+        function render()
+        {
+            scene.userData.controls.update();
+            // object_selection.render(group, scene.userData.camera);
+            renderer.render(scene, scene.userData.camera);
+            // requestAnimationFrame(render);
+
+            var time = Date.now() * 0.005;
+
+            // particleSystem.rotation.z = 0.01 * time;
+
+            var sizes = geometry.attributes.size.array;
+
+            for ( var i = 0; i < particles; i ++ ) {
+
+                sizes[ i ] = 10 * ( 1 + Math.sin( 0.1 * i + time ) );
+
+            }
+
+            geometry.attributes.size.needsUpdate = true;
+
+            renderer.render( scene, camera );
+        }
+
+        function initObject(){
+            uniforms = {
+
+                pointTexture: { value: new THREE.TextureLoader().load( "static/texture/three/sprites/snowflake2.png" ) }
+
+            };
+
+            var shaderMaterial = new THREE.ShaderMaterial( {
+
+                uniforms: uniforms,
+                vertexShader: document.getElementById( 'vertexshader' ).textContent,
+                fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+
+                blending: THREE.AdditiveBlending,
+                depthTest: false,
+                transparent: true,
+                vertexColors: true
+
+            } );
+
+            // geometry = new THREE.BufferGeometry();
+            geometry = new THREE.SphereGeometry(40, 30, 30);
+                geometry = new THREE.BufferGeometry().fromGeometry( geometry );
+
+            var positions = [];
+            var colors = [];
+            var sizes = [];
+
+            var color = new THREE.Color();
+            var radius = 10;
+
+            for ( var i = 0; i < particles; i ++ ) {
+
+                positions.push( ( Math.random() * 2 - 1 ) * radius );
+                positions.push( ( Math.random() * 2 - 1 ) * radius );
+                positions.push( ( Math.random() * 2 - 1 ) * radius );
+
+                color.setHSL( i / particles, 1.0, 0.5 );
+
+                colors.push( color.r, color.g, color.b );
+
+                sizes.push( 10 );
+
+            }
+
+            // geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+            geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+            geometry.addAttribute( 'size', new THREE.Float32BufferAttribute( sizes, 1 ).setDynamic( true ) );
+
+            particleSystem = new THREE.ParticleSystem( geometry, shaderMaterial );
+
+            group.add( particleSystem );
+
+        }
+
+        function ObjectSelection(){
+            object_selection = new THREE.ObjectSelection({//个人封装的js，three.js官方库中无
+                domElement: scene.userData.element,//渲染区域
+                selected: function(selectObj) {//selectObj为选取返回对象
+                    // 显示信息，此处为个性化处理，该函数会作为传入objsel.js中作为处理函数
+                    if(selectObj !== null) {//判断是否为空，objsel.js中有对应
+                        // var meshObj = selectObj.object;
+                        // meshObj.material.color = new THREE.Color("rgb(0,0,200)");
+
+                        // document.getElementById('year').textContent = meshObj.userData.name + ' 年度';
+                        // document.getElementById('screenNum').textContent = meshObj.userData.num +' 块屏';
+                    }
+                },
+                clicked: function(selectObj) {//点击事件
+                    if(selectObj !== null) {
+
+                  }
+                },
+                mousedown: function(selectObj) {//点击事件
+                    if(selectObj !== null) {
+                        
+                  }
+                },
+                mouseup: function(selectObj) {//点击事件
+                   if(selectObj !== null) {
+                        
+                  }
+                }
+              });
+        }
+    </script>
+
+</body>
+</html>

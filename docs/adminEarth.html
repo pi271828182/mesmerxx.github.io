@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>map</title>
+    <style>
+        html{
+            overflow:hidden;
+        }
+        #canvas-frame {
+            position:absolute;
+            width: 100vw;
+            height: 100vh;
+        }
+        #interaction{
+            position:absolute;
+            left:80vw;
+            top:5vh;
+            width: 20vw;
+            height: 20vh;
+            z-index: 10;
+            font-size: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-frame"></div>
+    <div id="interaction">
+        <p id="country"></p>
+        <p id="filmNum"></p>
+    </div>
+    <div id="worldsvg"></div>
+    <canvas id="svgToCanvas"></canvas>
+    
+    <script src="./static/js/support/three.js" ></script>
+    <script src="./static/js/support/d3.v4.min.js"></script>
+    <script src="static/js/support/d3-threeD.js"></script>
+    
+    <script src="./static/js/support/OrbitControls.js" ></script>
+    <script src="./static/js/objSelection.js"></script>
+    <script src="./static/js/filmNum.js"></script>
+    <script src="./static/js/viz3d.js?version=5"></script>
+   
+    <script type="text/javascript">
+        var renderDivId = 'canvas-frame';
+
+        var data = []
+        var parameter = {'flag': 'adminEarth'}
+
+        var earth = new Earth(data, parameter, renderDivId, false);
+        earth.start();
+        
+    </script>
+
+</body>
+</html>
