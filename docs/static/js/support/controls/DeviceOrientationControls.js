@@ -5,14 +5,7 @@
  * W3C Device Orientation control (http://w3c.github.io/deviceorientation/spec-source-orientation.html)
  */
 
-import {
-	Euler,
-	Math as _Math,
-	Quaternion,
-	Vector3
-} from "../../../build/three.module.js";
-
-var DeviceOrientationControls = function ( object ) {
+THREE.DeviceOrientationControls = function ( object ) {
 
 	var scope = this;
 
@@ -42,13 +35,13 @@ var DeviceOrientationControls = function ( object ) {
 
 	var setObjectQuaternion = function () {
 
-		var zee = new Vector3( 0, 0, 1 );
+		var zee = new THREE.Vector3( 0, 0, 1 );
 
-		var euler = new Euler();
+		var euler = new THREE.Euler();
 
-		var q0 = new Quaternion();
+		var q0 = new THREE.Quaternion();
 
-		var q1 = new Quaternion( - Math.sqrt( 0.5 ), 0, 0, Math.sqrt( 0.5 ) ); // - PI/2 around the x-axis
+		var q1 = new THREE.Quaternion( - Math.sqrt( 0.5 ), 0, 0, Math.sqrt( 0.5 ) ); // - PI/2 around the x-axis
 
 		return function ( quaternion, alpha, beta, gamma, orient ) {
 
@@ -92,13 +85,13 @@ var DeviceOrientationControls = function ( object ) {
 
 		if ( device ) {
 
-			var alpha = device.alpha ? _Math.degToRad( device.alpha ) + scope.alphaOffset : 0; // Z
+			var alpha = device.alpha ? THREE.Math.degToRad( device.alpha ) + scope.alphaOffset : 0; // Z
 
-			var beta = device.beta ? _Math.degToRad( device.beta ) : 0; // X'
+			var beta = device.beta ? THREE.Math.degToRad( device.beta ) : 0; // X'
 
-			var gamma = device.gamma ? _Math.degToRad( device.gamma ) : 0; // Y''
+			var gamma = device.gamma ? THREE.Math.degToRad( device.gamma ) : 0; // Y''
 
-			var orient = scope.screenOrientation ? _Math.degToRad( scope.screenOrientation ) : 0; // O
+			var orient = scope.screenOrientation ? THREE.Math.degToRad( scope.screenOrientation ) : 0; // O
 
 			setObjectQuaternion( scope.object.quaternion, alpha, beta, gamma, orient );
 
@@ -116,5 +109,3 @@ var DeviceOrientationControls = function ( object ) {
 	this.connect();
 
 };
-
-export { DeviceOrientationControls };

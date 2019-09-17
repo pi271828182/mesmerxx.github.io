@@ -46,7 +46,7 @@
 
         void main() {
             gl_FragColor = vec4( vColor, 1.0 ); 
-            gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord ); 
+            //gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord ); 
         }
     </script>
 
@@ -72,7 +72,7 @@
 
 
         var threeDiv = document.getElementById( 'canvas-frame' );
-        var renderer = new THREE.WebGLRenderer( {antialias: true} );//, alpha: true，不然着色器的材质底色是黑色，得调成黑色以掩盖
+        var renderer = new THREE.WebGLRenderer( {antialias: true, alpha: true} );//, alpha: true，不然着色器的材质底色是黑色，得调成黑色以掩盖
         renderer.setClearColor( 0xffffff, 0 );
 
         var width = threeDiv.clientWidth;
@@ -109,7 +109,7 @@
 
         var particleSystem, uniforms, geometry;
 
-        var particles = 10000;
+        var particles = 100000;
 
         initGrid();
         initObject();
@@ -117,6 +117,238 @@
         // var object_selection;
         // ObjectSelection();
         animate();
+
+        var locations = [
+            {
+                name: '中国',
+                position: {x: 75.00796918081518, y: 61.91934379181622,z: -28.073357639817498},
+            }, {
+                name: '美国',
+                position: {x: -78.98949663819533, y: 59.629624022296966, z: -14.178459288876969},
+
+
+            }, {
+                name: '日本',
+                position: {x: 42.3265905768655, y: 66.34106825042187, z: -70.4862920864629},
+
+            }, {
+                name: '法国',
+                position: {x: 8.0669748999557327, y: 73.91043794076275, z: 67.27747980985468},
+
+            }, {
+                name: '英国',
+                position: {x: -0, y: 80.19051430548129, z: 57.366479276535955},
+
+            }, {
+                name: '德国',
+                position: {x: 18.9539756944435105, y: 78.98316651909269, z: 60.9104273913217},
+
+            }, {
+                name:  '意大利',
+                position: {x: 17.938379742103578, y: 70.39983389177507, z: 68.70391772481749},
+
+            }, {
+                name:  '西班牙',
+                position: {x: -0.383778685861498, y: 63.98075040863748, z: 74.74282894229123},
+
+            }, {
+                name: '印度',
+                position: {x: 105.69170830374244, y: 38.81500192142367, z: 16.24344438982224},
+
+            }, {
+                name: '荷兰',
+                position: {x: 14.9539756944435105, y: 82.98316651909269, z: 60.9104273913217},
+
+            }, {
+                name: '韩国',
+                position: {x: 57.16897076957526, y: 63.13702505095671, z: -60.910540428397454},
+
+            }, {
+                name:  '澳大利亚',
+                position: {x: 42.3265905768655, y: 66.34106825042187, z: -60.4862920864629},
+
+            }, {
+                name: '俄罗斯',
+                position: {x: 65.22604496757009, y: -37.49272904075292, z: -65.80000486660282},
+
+            }, {
+                name: '丹麦',
+                position: {x: 11.689885682701275, y: 83.27489141712387, z: 54.073839957510444},
+
+            }, {
+                name: '挪威',
+                position: {x: 11.08180473680023, y: 90.147589749343, z: 41.81658709531036},
+
+            }, {
+                name: '比利时',
+                position: {x: 10.01134696172185, y: 78.31915763919784, z: 61.317379267108294},
+
+            }, {
+                name: '巴西',
+                position: {x: -79.08401974175986, y: -19.85420750368567, z: 57.857868989204434},
+
+            }, {
+                name: '匈牙利',
+                position: {x: 19.364070451544027, y: 76.09909542965704, z: 61.87254054362319},
+
+            }, {
+                name:  '加拿大',
+                position: {x: -55.433514312547246, y: 81.85750596786048, z: -14.880451875612794},
+
+            }, {
+                name: '印度尼西亚',
+                position: {x: 88.32400979544887, y: 1.8797341790603959, z: -46.73261585928285},
+
+            }, {
+                name: '哈萨克斯坦',
+                position: {x: 60.09736225579063, y: 76.88131979700789, z: 21.74947745387272},
+
+            }, {
+                name: '罗马尼亚',
+                position: {x: 30.320222735171463, y: 73.39419744154571, z: 60.733997487085325},
+
+            }, {
+                name: '菲律宾',
+                position: {x: 80.57047920438457, y: 23.462197427242458, z: -54.287616135249536},
+
+            }, {
+                name: '哥伦比亚',
+                position: {x: -93.9056171486871, y: 9.569780502969092, z: 32.895358679715144},
+
+            }, {
+                name: '墨西哥',
+                position: {x: -86.27943553937608, y: 47.653853801739366, z: -22.722437846439703},
+
+            }, {
+                name: '波兰',
+                position: {x: 21.324997835582927, y: 85.66479240847909, z: 57.89553023019893},
+
+            }, {
+                name: '黎巴嫩',
+                position: {x: 53.53946976720316, y: 56.161298167300245, z: 63.06155681302019},
+
+            }, {
+                name: '伊朗',
+                position: {x: 63.35508096658414, y: 44.97222758744288, z: 62.88520188636911},
+
+            }, {
+                name: '阿根廷',
+                position: {x: -73.52110954085111, y: -58.84584655125052, z: 33.56042494210405},
+
+            }, {
+                name: '古巴',
+                position: {x: -89.83578854375384, y: 37.06981406179739, z: 23.533289467137493},
+
+            }, {
+                name: '奥地利',
+                position: {x: 20.360322988002984, y: 70.93454944773774, z: 62.99237505043328},
+
+            }, {
+                name:  '捷克',
+                position: {x: 32.9539756944435105, y: 78.98316651909269, z: 60.9104273913217},
+
+            }, {
+                name: '土耳其',
+                position: {x: 45.72430742391795, y: 64.26615016770997, z: 61.44691258330141},
+
+            }, {
+                name:'马其顿',
+                position: {x: 28.765950077252576, y: 67.01805063953842, z: 68.3727122980544},
+
+            }, {
+                name:  '波黑',
+                position: {x: 24.217547066899808, y: 69.58335998495897, z: 67.56045765208688},
+
+            }, {
+                name: '保加利亚',
+                position: {x: 35.664934429727435, y: 69.65163757904924, z: 65.28264771513582},
+
+            }, {
+                name: '瑞典',
+                position: {x: 16.084428342703664, y: 90.35813615886633, z: 40.7729440110017},
+
+            }, {
+                name: '叙利亚',
+                position: {x: 62.51340064944739, y: 56.477491628465884, z: 63.63093405560234},
+
+            }, {
+                name: '卡塔尔',
+                position: {x: 72.86380326553476, y: 43.4388615417639, z: 52.906297801751016},
+
+            }, {
+                name:  '新加坡',
+                position: {x: 95.9261019912968, y: 3.4408339042358405, z: -27.857583290455324},
+
+            }, {
+                name: '秘鲁',
+                position: {x: -93.64905664936057, y: -17.842775350012143, z: 30.0744008930152},
+
+            }, {
+                name: '巴拉圭',
+                position: {x: -76.31305837286402, y: -37.119989570711475, z: 52.81120465938832},
+
+            }, {
+                name: '乌拉圭',
+                position: {x: -68.7061842037819, y: -54.868532334916736, z: 47.53498163752087},
+
+            }, {
+                name: '阿塞拜疆',
+                position: {x: 56.158065248408306, y: 66.11690549453431, z: 49.694937081757715},
+
+            }
+        ];
+
+        function initLocation(){
+            var radius = 110;
+            for(let i in locations){
+                var sprite = createLocationSprite(locations[i], radius);
+                createText(sprite);
+            }
+        }
+
+        function createText(value) {
+            let canvas = document.createElement("canvas");
+            canvas.width = 512;
+            canvas.height = 512;
+            let ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#000000";
+            ctx.font = "40px Yahei";
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(value.userData.title, 256, 256, 512);
+            let spriteMap = new THREE.CanvasTexture(canvas);
+            spriteMap.needsUpdate = true;
+            let spriteMaterial = new THREE.SpriteMaterial({map: spriteMap});
+            let sprite = new THREE.Sprite(spriteMaterial);
+            sprite.scale.set(30, 30, 1);
+            this.group.add(sprite);//scene改group
+            value.text = sprite;
+            sprite.data = value;
+
+            let ray = this.scene.userData.camera.position.clone().sub(value.position).clampLength(11, 12).add(value.position);
+            sprite.position.copy(ray);
+            scene.add(sprite);
+            return sprite
+        }
+
+        function createLocationSprite(data, radius){
+            var position = data.position;//this.lglt2xyz(location[0],location[1], radius);//经度，纬度
+
+            var spriteMaterial = new THREE.SpriteMaterial({
+                map: new THREE.TextureLoader().load('static/texture/three/sprite/ball.png'),
+                color:0xff0000,
+                depthTest: true
+            });
+
+            var sprite = new THREE.Sprite(spriteMaterial);
+            sprite.position.set(position.x*1.03, position.y*1.03, position.z*1.03);
+            sprite.scale.set(5,5,5);
+
+            sprite.userData.title = data.name;
+            scene.add(sprite);
+            return sprite
+        }
+
 
 
         window.addEventListener( 'resize', onWindowResize, false );
@@ -165,12 +397,38 @@
 
             }
 
-            geometry.attributes.size.needsUpdate = true;
+            //geometry.attributes.size.needsUpdate = true;
 
             renderer.render( scene, camera );
         }
 
         function initObject(){
+            var geometry1 = new THREE.SphereBufferGeometry( 99, 32, 32 );
+            var material1 = new THREE.MeshPhongMaterial({
+                color: 0x000,
+                transparent: false,
+                alpha: 0,
+            });
+            scene.add(new THREE.Mesh(geometry1, material1));
+
+            var earthGeometry = new THREE.SphereBufferGeometry( 100, 32, 32 );
+
+            var material = new THREE.MeshPhongMaterial({
+                map:         new THREE.TextureLoader().load('static/texture/earth/2_no_clouds_4k.jpg'),
+                bumpMap:     new THREE.TextureLoader().load('static/texture/earth/elev_bump_4k.jpg'),//凹凸贴图
+                bumpScale:   1,//凹凸贴图会对材质产生多大影响。典型范围是0-1。默认值为1。
+                emissive:    new THREE.Color(0x6d3939),
+                emissiveIntensity: 0.05,
+                //wireframe:true,
+                transparent: true,
+                alphaMap:    new THREE.TextureLoader().load('static/texture/earth/grey.jpg'),//透明度贴图，黑色：完全透明;白色：完全不透明
+            });
+            var mesh2 = new THREE.Mesh( earthGeometry, material );
+            mesh2.rotation.y += Math.PI*15.22/10;//从北极往南极望是顺时针旋转，手动调整本初子午线与y0z平面的误差
+            // mesh2.material.wireframe = true;
+            scene.add( mesh2 );
+
+
             uniforms = {
 
                 pointTexture: { value: new THREE.TextureLoader().load( "static/texture/three/sprites/snowflake2.png" ) }
@@ -191,7 +449,7 @@
             } );
 
             // geometry = new THREE.BufferGeometry();
-            geometry = new THREE.SphereGeometry(40, 30, 30);
+            geometry = new THREE.SphereGeometry(105, 20, 20);
                 geometry = new THREE.BufferGeometry().fromGeometry( geometry );
 
             var positions = [];
@@ -215,13 +473,14 @@
 
             }
 
-            // geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+            //geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
             geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
             geometry.addAttribute( 'size', new THREE.Float32BufferAttribute( sizes, 1 ).setDynamic( true ) );
 
-            particleSystem = new THREE.ParticleSystem( geometry, shaderMaterial );
+            particleSystem = new THREE.Points( geometry, shaderMaterial );
 
             group.add( particleSystem );
+            console.log(particleSystem);
 
         }
 
