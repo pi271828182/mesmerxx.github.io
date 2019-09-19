@@ -24,7 +24,7 @@
 </head>
 <body>
     <div id="canvas-frame"></div>
-    <div id="info">Description</div>
+    <!-- <div id="info">Description</div> -->
     
 
     <script src="./static/js/support/three.js" ></script>
@@ -38,7 +38,7 @@
     <script type="text/javascript">
 
         var threeDiv = document.getElementById( 'canvas-frame' );
-        var renderer = new THREE.WebGLRenderer( {antialias: true} );
+        var renderer = new THREE.WebGLRenderer( {antialias: true, alpha: true} );
         
         var width = threeDiv.clientWidth;
         var height = threeDiv.clientHeight;
