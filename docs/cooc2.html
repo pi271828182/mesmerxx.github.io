@@ -219,6 +219,40 @@
         d3.select('#nodeText'+this.getAttribute('id')[4])
             .style('visibility', 'visible');
 
+        // lineTexts.attr("x", function(o) {
+        //     // console.log(o);
+        //         let r = Math.sqrt(Math.pow(o.source.x- o.target.x, 2) + Math.pow(o.source.y- o.target.y, 2));
+        //         let x1, x2;
+        //         if(o.source.id === d.id){
+        //             // console.log(d);
+        //             x1 = d.x;
+        //             x2 = o.target.x;
+        //             return (0.2*r*(x1-x2))/r +x2;
+        //         }
+        //         if(o.target.id === d.id){
+        //             x1 = d.x;
+        //             x2 = o.source.x;
+        //             return (0.2*r*(x1-x2))/r +x2;
+        //         }
+        //         return 0;
+        //
+        //     })
+        //     .attr("y", function(o) {
+        //         let r = Math.sqrt(Math.pow(o.source.x- o.target.x, 2) + Math.pow(o.source.y- o.target.y, 2));
+        //         let y1, y2;
+        //         if(o.source.id === d.id){
+        //             y1 = d.y;
+        //             y2 = o.target.y;
+        //             return (0.2*r*(y1-y2))/r +y2;
+        //         }
+        //         if(o.target.id === d.id){
+        //             y1 = d.y;
+        //             y2 = o.source.y;
+        //             return (0.2*r*(y1-y2))/r +y2;
+        //         }
+        //         return 0;
+        //     });
+
     });
     node.on("mousemove", function(d) {// 添加鼠标在点上移动的事件
 
@@ -268,7 +302,6 @@
             .attr("y1", function(d) { return d.source.y; })
             .attr("x2", function(d) { return d.target.x; })
             .attr("y2", function(d) { return d.target.y; });
-
 
 
         lineTexts.attr("x", function(d, i) {
