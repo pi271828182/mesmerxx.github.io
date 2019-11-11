@@ -491,16 +491,16 @@
                 that.graph = new GRAPHVIS.Graph();//图
                 //结点
                 for(let i=0; i<that.data.nodes.length; i++){
-                    var node = new GRAPHVIS.Node(nodes[i]);
+                    var node = new GRAPHVIS.Node(that.data.nodes[i]);
                     that.graph.nodeSet[node.id] = node;
                     that.graph.nodes.push(node);//结点加入图中
                 }
                 //边
                 var nodes_graph = that.graph.nodeSet;//改
                 for(let i=0; i<that.data.links.length; i++){
-                    var startNodeId = links[i].source;
-                    var endNodeId = links[i].target;
-                    var edge = new GRAPHVIS.Edge(nodes_graph[startNodeId], nodes_graph[endNodeId], links[i].relation);
+                    var startNodeId = that.data.links[i].source;
+                    var endNodeId = that.data.links[i].target;
+                    var edge = new GRAPHVIS.Edge(nodes_graph[startNodeId], nodes_graph[endNodeId], that.data.links[i].relation);
                     that.graph.edges.push(edge);
 
                     nodes_graph[startNodeId].data.friend.push(nodes_graph[endNodeId]);

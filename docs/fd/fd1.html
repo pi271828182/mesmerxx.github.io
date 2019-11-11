@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>fd1</title>
+    <style>
+        svg{
+            margin-top: 5vh;
+            /*margin-left:10vw;*/
+            /*width: 90vh;*/
+            /*height: 90vh;*/
+        }
+        .node {
+            fill: #fff;
+            stroke: steelblue;
+            stroke-width: 1.5px;
+            opacity: 1;
+        }
+        .node {
+            font: 10px sans-serif;
+        }
+        svg line {
+            fill: none;
+            /*stroke: #ff8888;*/
+            stroke: #ffaa64;
+            stroke-width: 1.5px;
+        }
+
+        .hideLink{
+            opacity: 0.1;
+            stroke-width: 0.1px;
+        }
+        .normalLink{
+            opacity: 0.8;
+            stroke-width: 1px;
+        }
+        .nodeText{
+            font-size: 10px;
+            font-family: Arctic;
+            font-weight: bolder;
+            line-height: 1;
+            fill:#2e405b;
+            /*fill:#00A0E9;*/
+            font-family: 'Helvetica';
+
+            -webkit-transition: color 0.3s ease 0s, background-color 0.3s ease 0s;
+            /*font-family: "Source Sans Pro","Roboto","Helvetica","Helvetica Neue","Source Han Sans SC","Source Han Sans TC","PingFang SC","PingFang HK","PingFang TC",sans-serif;*/
+
+        }
+        .lineText{
+            font-size: 10px;
+            font-weight: bolder;
+            font-family: 'Helvetica';
+
+            /*font-family: "Source Sans Pro","Roboto","Helvetica","Helvetica Neue","Source Han Sans SC","Source Han Sans TC","PingFang SC","PingFang HK","PingFang TC",sans-serif;*/
+            visibility: hidden;
+            fill: #00A0E9;
+        }
+
+        .linkedLine{
+            stroke: #00A0E9;
+        }
+        .linkedNode{
+            fill: #00A0E9;
+            stroke: #00A0E9;
+        }
+
+        .button{
+            position: fixed;
+            top:5vh;
+            left: 90vw;
+
+            font-weight: 300;
+            font-family: "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+            box-sizing: border-box;
+            transition-property: all;
+            transition-duration: .3s;
+            background-color: #FEAE1B;
+            border-color: #FEAE1B;
+            font-size: 20px;
+
+            color: #FFF;
+
+            border-radius: 100%;
+            padding: 0 !important;
+            font-size: 20px;
+            height: 50px;
+            line-height: 50px;
+            margin: 5px;
+            width: 50px;
+
+        }
+
+        .button-circle{
+
+        }
+        a:hover{
+            opacity: 0.7;
+            /*background:#dddddd;*/
+            display:block;
+        }
+
+    </style>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+</head>
+<body>
+<a class="button button-highlight button-circle button-large"><i class="fa fa-plus">动</i></a>
+<script>
+    var height = document.body.clientHeight||document.documentElement.clientHeight *0.9;
+    var width = document.body.clientWidth||document.documentElement.clientWidth ;
+
+    var force = d3.layout.force()
+        .gravity(.1)
+        .charge(-1000)
+        .linkStrength(1)
+        .size([width, height]);
+
+    var svg = d3.select("body").append("svg:svg")
+        .attr("width", width)
+        .attr("height", height);
+
+
+    nodes = [{'id': 0, 'name': 'consequences', 'position': 'm', 'value': 24.18777958062905}, {'id': 1, 'name': 'kingdom', 'position': 'm', 'value': 19.524375989994248}, {'id': 2, 'name': 'chinese', 'position': 'm', 'value': 16.867760088082967}, {'id': 3, 'name': 'giant', 'position': 'm', 'value': 16.83215536896484}, {'id': 4, 'name': 'telecom', 'position': 'm', 'value': 15.755747436301169}, {'id': 5, 'name': 'summons', 'position': 'm', 'value': 15.68385931403177}, {'id': 6, 'name': 'canadians', 'position': 'm', 'value': 13.364114668513583}, {'id': 7, 'name': 'china', 'position': 'm', 'value': 12.334503420729549}, {'id': 8, 'name': 'grave', 'position': 'm', 'value': 8.741724363598}, {'id': 9, 'name': 'telecommunications', 'position': 'm', 'value': 6.611540345684145}, {'id': 10, 'name': 'military', 'position': 'm', 'value': 6.388347130293337}, {'id': 11, 'name': 'protest', 'position': 'm', 'value': 5.693923158852251}, {'id': 12, 'name': 'urges', 'position': 'm', 'value': 5.427283907968265}, {'id': 13, 'name': 'ambassador', 'position': 'm', 'value': 5.3875480674011795}, {'id': 14, 'name': 'talks', 'position': 'm', 'value': 5.380562864878216}, {'id': 15, 'name': 'diplomat', 'position': 'm', 'value': 4.580529284012419}, {'id': 16, 'name': 'facebook', 'position': 'm', 'value': 4.269364948525894}, {'id': 17, 'name': 'tensions', 'position': 'm', 'value': 4.228534316908374}, {'id': 18, 'name': 'india', 'position': 'm', 'value': 4.1916470806759865}, {'id': 19, 'name': 'bargaining', 'position': 'm', 'value': 3.298854937422084}, {'id': 20, 'name': 'restrict', 'position': 'm', 'value': 3.289660264409907}, {'id': 21, 'name': 'british', 'position': 'm', 'value': 3.247158376020001}, {'id': 22, 'name': 'shared', 'position': 'm', 'value': 3.1971963550774403}, {'id': 23, 'name': 'government', 'position': 'm', 'value': 3.1544928863515977}, {'id': 24, 'name': 'tech', 'position': 'm', 'value': 3.146979782769318}, {'id': 25, 'name': 'american', 'position': 'm', 'value': 3.121288571157224}, {'id': 26, 'name': 'risk', 'position': 'm', 'value': 3.117767876482217}, {'id': 27, 'name': 'firm', 'position': 'm', 'value': 3.1053855373247368}, {'id': 28, 'name': 'retaliate', 'position': 'm', 'value': 3.0686597552509065}, {'id': 29, 'name': 'wednesday', 'position': 'm', 'value': 2.1309061779985665}, {'id': 30, 'name': 'officials', 'position': 'm', 'value': 2.0931253814513764}, {'id': 31, 'name': 'australian', 'position': 'm', 'value': 2.064300767328258}, {'id': 32, 'name': 'telecoms', 'position': 'm', 'value': 2.0406340338631344}, {'id': 33, 'name': 'intervene', 'position': 'm', 'value': 2.0073484166051103}, {'id': 34, 'name': 'release', 'position': 'm', 'value': 1.1416396920548477}, {'id': 35, 'name': 'arrest', 'position': 'm', 'value': 1.0978141638311367}, {'id': 36, 'name': 'detention', 'position': 'm', 'value': 1.0850316257846564}, {'id': 37, 'name': 'fight', 'position': 'm', 'value': 1.0552832948580815}, {'id': 38, 'name': 'cfo', 'position': 'm', 'value': 1.0421480811871877}, {'id': 39, 'name': 'sharing', 'position': 'm', 'value': 1.0297686244346218}, {'id': 40, 'name': 'xi', 'position': 'm', 'value': 1.025992585972792}, {'id': 41, 'name': 'employee', 'position': 'm', 'value': 1.0249176071891744}, {'id': 42, 'name': 'apps', 'position': 'm', 'value': 1.0235760238027078}, {'id': 43, 'name': 'canada', 'position': 'm', 'value': 1.0216314410528575}, {'id': 44, 'name': 'maker', 'position': 'm', 'value': 1.0191550187808482}, {'id': 45, 'name': 'calls', 'position': 'm', 'value': 1.0183953135172599}, {'id': 46, 'name': 'agencies', 'position': 'm', 'value': 1.0079301861956464}, {'id': 47, 'name': 'efforts', 'position': 'm', 'value': 1.007037167160128}, {'id': 48, 'name': 'canadian', 'position': 'm', 'value': 1.0065107790793875}, {'id': 49, 'name': 'brands', 'position': 'm', 'value': 1.000748169171438}];
+    links = [{'source': 7, 'target': 2, 'value': 1.1825929357934408}, {'source': 7, 'target': 3, 'value': 1.1802287157014142}, {'source': 7, 'target': 9, 'value': 1.0497240992717394}, {'source': 7, 'target': 4, 'value': 1.1749627052327705}, {'source': 7, 'target': 31, 'value': 1.0009194090285911}, {'source': 7, 'target': 21, 'value': 1.083065076300664}, {'source': 7, 'target': 10, 'value': 1.126180724479978}, {'source': 7, 'target': 20, 'value': 1.0972506209133288}, {'source': 7, 'target': 29, 'value': 1.0342730155856783}, {'source': 7, 'target': 22, 'value': 1.0663894694648772}, {'source': 7, 'target': 1, 'value': 1.3389166489570652}, {'source': 43, 'target': 1, 'value': 1.0216314410528575}, {'source': 38, 'target': 1, 'value': 1.0421480811871877}, {'source': 35, 'target': 1, 'value': 1.0978141638311367}, {'source': 23, 'target': 0, 'value': 1.016443497488311}, {'source': 23, 'target': 5, 'value': 1.081353542200896}, {'source': 23, 'target': 6, 'value': 1.0566958466623908}, {'source': 24, 'target': 0, 'value': 1.0139353495052639}, {'source': 24, 'target': 5, 'value': 1.0788531655466467}, {'source': 24, 'target': 6, 'value': 1.0541912677174072}, {'source': 2, 'target': 14, 'value': 1.0574737463461674}, {'source': 2, 'target': 17, 'value': 1.019386081042829}, {'source': 2, 'target': 13, 'value': 1.0588764731174332}, {'source': 2, 'target': 0, 'value': 1.243650041667895}, {'source': 2, 'target': 12, 'value': 1.0668567001810683}, {'source': 2, 'target': 18, 'value': 1.0101286729018284}, {'source': 2, 'target': 8, 'value': 1.1191223026849952}, {'source': 2, 'target': 33, 'value': 1.004876255487858}, {'source': 2, 'target': 11, 'value': 1.2060396879720467}, {'source': 2, 'target': 5, 'value': 1.3061315825029856}, {'source': 2, 'target': 19, 'value': 1.1029878448226769}, {'source': 2, 'target': 6, 'value': 1.2825098807125819}, {'source': 2, 'target': 15, 'value': 1.180855770355279}, {'source': 2, 'target': 28, 'value': 1.0262721124938852}, {'source': 48, 'target': 1, 'value': 1.0065107790793875}, {'source': 44, 'target': 5, 'value': 1.0191550187808482}, {'source': 3, 'target': 14, 'value': 1.0550734453415012}, {'source': 3, 'target': 17, 'value': 1.0169823679569114}, {'source': 3, 'target': 13, 'value': 1.0564763645763144}, {'source': 3, 'target': 0, 'value': 1.2413176807988526}, {'source': 3, 'target': 12, 'value': 1.0644577770947963}, {'source': 3, 'target': 18, 'value': 1.0077246580918826}, {'source': 3, 'target': 8, 'value': 1.1167349678199547}, {'source': 3, 'target': 33, 'value': 1.0024721611172522}, {'source': 3, 'target': 11, 'value': 1.2036865671175612}, {'source': 3, 'target': 5, 'value': 1.303842012127919}, {'source': 3, 'target': 19, 'value': 1.1005962219128118}, {'source': 3, 'target': 6, 'value': 1.28020288827761}, {'source': 3, 'target': 15, 'value': 1.1784907834906635}, {'source': 3, 'target': 28, 'value': 1.0238687575393979}, {'source': 14, 'target': 4, 'value': 1.0497297230136409}, {'source': 14, 'target': 10, 'value': 1.000400333263195}, {'source': 14, 'target': 1, 'value': 1.2178856169137109}, {'source': 16, 'target': 0, 'value': 1.0507510408696386}, {'source': 16, 'target': 11, 'value': 1.012171082890109}, {'source': 16, 'target': 5, 'value': 1.1155137165626587}, {'source': 16, 'target': 6, 'value': 1.090929108203487}, {'source': 45, 'target': 1, 'value': 1.0183953135172599}, {'source': 17, 'target': 4, 'value': 1.0116318413952818}, {'source': 17, 'target': 1, 'value': 1.1805340265133517}, {'source': 13, 'target': 4, 'value': 1.051133041523441}, {'source': 13, 'target': 10, 'value': 1.0018054388776103}, {'source': 13, 'target': 1, 'value': 1.219256749306381}, {'source': 32, 'target': 5, 'value': 1.0326727931229425}, {'source': 32, 'target': 6, 'value': 1.0079612407401919}, {'source': 37, 'target': 1, 'value': 1.0552832948580815}, {'source': 9, 'target': 0, 'value': 1.1120135025142868}, {'source': 9, 'target': 11, 'value': 1.0735810463219193}, {'source': 9, 'target': 5, 'value': 1.1763217397167578}, {'source': 9, 'target': 6, 'value': 1.1519403300966915}, {'source': 9, 'target': 15, 'value': 1.04795962776275}, {'source': 30, 'target': 5, 'value': 1.0589076119474923}, {'source': 30, 'target': 6, 'value': 1.034217769503884}, {'source': 46, 'target': 5, 'value': 1.0079301861956464}, {'source': 0, 'target': 25, 'value': 1.0053603557025972}, {'source': 0, 'target': 27, 'value': 1.000053670217558}, {'source': 0, 'target': 26, 'value': 1.004185449398622}, {'source': 0, 'target': 4, 'value': 1.2361213148997015}, {'source': 0, 'target': 41, 'value': 1.0249176071891744}, {'source': 0, 'target': 42, 'value': 1.0235760238027078}, {'source': 0, 'target': 31, 'value': 1.0633813582996672}, {'source': 0, 'target': 21, 'value': 1.1451507735581639}, {'source': 0, 'target': 47, 'value': 1.007037167160128}, {'source': 0, 'target': 10, 'value': 1.1878988378391688}, {'source': 0, 'target': 20, 'value': 1.159228401068055}, {'source': 0, 'target': 29, 'value': 1.0966331624128884}, {'source': 0, 'target': 39, 'value': 1.0297686244346218}, {'source': 0, 'target': 22, 'value': 1.1285857888191058}, {'source': 0, 'target': 49, 'value': 1.000748169171438}, {'source': 0, 'target': 1, 'value': 1.3970217638112081}, {'source': 25, 'target': 5, 'value': 1.0703016535819532}, {'source': 25, 'target': 6, 'value': 1.0456265618726737}, {'source': 34, 'target': 1, 'value': 1.1416396920548477}, {'source': 36, 'target': 1, 'value': 1.0850316257846564}, {'source': 27, 'target': 5, 'value': 1.0650071073675946}, {'source': 27, 'target': 6, 'value': 1.0403247597395842}, {'source': 12, 'target': 4, 'value': 1.0591169270137368}, {'source': 12, 'target': 10, 'value': 1.0098013481966397}, {'source': 12, 'target': 1, 'value': 1.2270511554820236}, {'source': 26, 'target': 5, 'value': 1.0691295925862667}, {'source': 26, 'target': 6, 'value': 1.044452834497329}, {'source': 18, 'target': 4, 'value': 1.0023736520449067}, {'source': 18, 'target': 1, 'value': 1.1714200976373688}, {'source': 8, 'target': 4, 'value': 1.1114188260382198}, {'source': 8, 'target': 21, 'value': 1.0189425261611733}, {'source': 8, 'target': 10, 'value': 1.0622604476367448}, {'source': 8, 'target': 20, 'value': 1.0331812424285234}, {'source': 8, 'target': 22, 'value': 1.0022210967934575}, {'source': 8, 'target': 1, 'value': 1.2778429540349316}, {'source': 4, 'target': 11, 'value': 1.1984447745506153}, {'source': 4, 'target': 5, 'value': 1.2987395917911573}, {'source': 4, 'target': 19, 'value': 1.0952708706865955}, {'source': 4, 'target': 6, 'value': 1.2750621804897495}, {'source': 4, 'target': 15, 'value': 1.173223102403727}, {'source': 4, 'target': 28, 'value': 1.0185188852176235}, {'source': 40, 'target': 1, 'value': 1.025992585972792}];
+
+
+    //判断节点间是否相连的前期准备
+    var linkedByIndex = {};
+    links.forEach(function(d) {
+        linkedByIndex[d.source + "," + d.target] = 1;
+        linkedByIndex[d.target + "," + d.source] = 1;
+    });
+    function neighboring(a, b) {
+      return linkedByIndex[a + "," + b];
+    }
+
+    //节点定位
+    nodes.forEach(function(d, i) {
+        d.x = 320*Math.cos(Math.PI/25*i - Math.PI/3)+width/2;
+        d.y = 320*Math.sin(Math.PI/25*i - Math.PI/3)+height/2;
+
+        if(i<50){
+            d.fixed = true;
+        }
+    });
+
+    let scale_link = d3.scale.linear().domain([1,1.2]).range([2,12])
+
+    force.nodes(nodes)
+        .links(links)
+        .distance(function (d) {
+            return scale_link(d.value);
+        })
+        .start();
+
+    var link = svg.selectAll("line")
+        .data(links)
+       .enter()
+        .insert("svg:line")
+        .attr("class", function(d){
+            return d.position == 'hideLink' ? 'hideLine' : 'normalLink';
+        })
+        .attr("id", function (d, i) {
+            return "textPath" + i;
+        });
+
+
+    let scale = d3.scale.linear().domain([1,25]).range([4,12])
+    var node = svg.selectAll("circle.node")
+        .data(nodes)
+       .enter()
+        .append("svg:circle")
+        .attr("r", function (d) {
+            return scale(d.value);
+
+        })
+        .attr("class", "node")
+        .attr('id', function (d) {
+            return 'node'+ d.id;
+        })
+        .call(force.drag);
+
+
+    node.on("mouseover", function(d) {// 添加鼠标放在点上的事件
+
+        link.classed('linkedLine', function (o) {
+            return o.source.id === d.id || o.target.id === d.id ? true : false;
+        });
+
+        link.style("opacity", function(o) {
+            return o.source.id === d.id || o.target.id === d.id ? 1 : 0.15;
+        });
+
+        node.classed("linkedNode", function(o) {
+          return neighboring(d.id, o.id) ==1 || neighboring(o.id, d.id) == 1? true : false;
+        });
+
+        node.style("opacity", function(o) {
+            return neighboring(d.id, o.id) ==1 || neighboring(o.id, d.id) == 1? 1 : 0.15;
+        });
+
+
+        d3.select(this)
+            .classed("linkedNode", true)
+            .style("opacity", 1);
+
+        lineTexts.style('visibility', function (o) {
+            return o.source.id === d.id || o.target.id === d.id ? 'visible' : 'hidden';
+        });
+
+        nodeTexts.style('visibility', function(o) {
+              return neighboring(d.id, o.id) ==1 || neighboring(o.id, d.id) == 1? 'visible' : 'hidden';
+        });
+        d3.select('#nodeText'+this.getAttribute('id')[4])
+            .style('visibility', 'visible');
+
+    });
+    node.on("mousemove", function(d) {// 添加鼠标在点上移动的事件
+
+    });
+    node.on("mouseout", function() {// 添加鼠标从点上移开的事件
+        link.classed('linkedLine', false);
+        link.style("opacity", 1);
+        node.classed("linkedNode", false);
+        node.style("opacity", 1);
+        nodeTexts.style('visibility', 'visible');
+        // lineTexts.classed("linkedText", false);
+        lineTexts.style('visibility', 'hidden');
+    });
+
+    var nodeTexts = svg.selectAll(".nodeText")
+        .data(nodes)
+        .enter()
+        .append("text")
+        // .attr("class", function (d) {
+        //     // return d.position == 't' ? 'tFont' : d.position == 's' ? 'sFont' : 'mFont' ;
+        // })
+        .classed('nodeText', true)
+        .attr('id', function (d) {
+            return 'nodeText'+ d.id;
+        })
+        .attr("dx", function (d, i) {
+            return Math.cos(Math.PI/25*i - Math.PI/3) > 0 ? '1em':'-1em';
+        })
+        .attr("dy", function (d, i) {
+            return Math.sin(Math.PI/25*i - Math.PI/3) > 0 ? '1em':'-1em';
+        })
+        .style("text-anchor", function (d, i) {
+            return Math.cos(Math.PI/26*i - Math.PI/3) > 0 ? 'start':'end';
+        })
+        .text(function(d) { return d.name; });
+
+    var lineTexts = svg.selectAll(".lineText")
+        .data(links)
+        .enter()
+        .append("text")
+        .classed('lineText', true)
+        .text(function(d) { return d.value.toFixed(2); });
+
+    force.on("tick", function(e) {
+
+        link.attr("x1", function(d) { return d.source.x; })
+            .attr("y1", function(d) { return d.source.y; })
+            .attr("x2", function(d) { return d.target.x; })
+            .attr("y2", function(d) { return d.target.y; });
+
+
+
+        lineTexts.attr("x", function(d, i) {
+            let r = Math.sqrt(Math.pow(d.source.x- d.target.x, 2) + Math.pow(d.source.y- d.target.y, 2));
+            let x1, x2;
+            if(Math.pow(d.source.x - width/2, 2) + Math.pow(d.source.y - height/2, 2) >= Math.pow(d.target.x - width/2, 2) + Math.pow(d.target.y - height/2, 2)){
+                x1 = d.source.x;
+                x2 = d.target.x;
+            }
+            else{
+                x2 = d.source.x;
+                x1 = d.target.x;
+            }
+
+            return (0.8*r*(x1-x2))/r +x2;
+
+            })
+            .attr("y", function(d) {
+                let r = Math.sqrt(Math.pow(d.source.x- d.target.x, 2) + Math.pow(d.source.y- d.target.y, 2));
+                let y1, y2;
+                if(Math.pow(d.source.x - width/2, 2) + Math.pow(d.source.y - height/2, 2) >= Math.pow(d.target.x - width/2, 2) + Math.pow(d.target.y - height/2, 2)){
+                    y1 = d.source.y;
+                    y2 = d.target.y;
+                }
+                else{
+                    y2 = d.source.y;
+                    y1 = d.target.y;
+                }
+
+                return (0.8*r*(y1-y2))/r +y2;
+            });
+
+        node.attr("cx", function(d) { return d.x; })
+            .attr("cy", function(d) { return d.y; });
+
+
+        nodeTexts.attr("x", function(d) { return d.x; })
+             .attr("y", function(d) { return d.y; });
+
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class=showcase style="z-index:100">
+    <canvas height=600 width=1300></canvas>
+</div>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script type="text/javascript" src="static/js/d3/d3.js"></script>
+<script type="text/javascript" src="static/js/d3/d3.min2.js"></script>
+<script type="text/javascript">
+    function relation(){
+        //a结点集，b边集，c力模拟场，d，e
+        var a,b,c,d,e,f="id",g=15,h=600,i=600,j=-10,k=15,l=2;
+        this.init=function(){
+            c=d3.forceSimulation()
+                .force("charge",d3.forceManyBody().strength(j))
+                .force("center",d3.forceCenter(h/2,i/2))
+                .force("collide",d3.forceCollide(1.2*g)),
+            c.nodes(a).on("tick",this.render),
+            c.force("link",d3.forceLink().links(b).id(function(a){return a[f]}).distance(k).strength(1)),
+        this.initDrag(),
+        e=d.getContext("2d"),
+        this.restart(),
+        this.pause()
+    },
+    this.render=function(){
+        e.clearRect(0,0,h,i),
+        e.lineWidth=l,
+        e.strokeStyle="black",
+        e.beginPath(),
+        b.forEach(function(a){e.moveTo(a.source.x,a.source.y),e.lineTo(a.target.x,a.target.y)}),
+        e.stroke(),e.lineWidth=1,e.strokeStyle="black",
+        a.forEach(function(a){e.fillStyle=a.color,e.beginPath(),
+        e.arc(a.x,a.y,a.radius,0,2*Math.PI),e.fill(),e.stroke()}),
+        e.font="14px Comic Sans MS",
+        e.fillStyle="black",
+        e.textAlign="center",
+        a.forEach(function(a){e.fillText(a.name,a.x+2.5*a.radius,a.y+2.5*a.radius)})},
+    this.initDrag=function(){function a(){return c.find(d3.event.x,d3.event.y)}function b(){d3.event.active||c.alphaTarget(.3).restart(),d3.event.subject.fx=d3.event.subject.x,d3.event.subject.fy=d3.event.subject.y}function e(){d3.event.subject.fx=d3.event.x,d3.event.subject.fy=d3.event.y}function f(){d3.event.active||c.alphaTarget(0),d3.event.subject.fx=null,d3.event.subject.fy=null}d3.select(d).call(d3.drag().container(d).subject(a).on("start",b).on("drag",e).on("end",f))},this.pause=function(){c.stop()},this.run=function(){c.restart()},this.restart=function(){c.alpha(1),this.run()},
+    this.setNodes=function(b){a=b},
+    this.setLinks=function(a){b=a},
+    this.setId=function(a){f=a},
+    this.setRadius=function(a){g=a},
+    this.setCanvas=function(a){d=a},
+    this.setSize=function(a,b){h=a,i=b},
+    this.setCharge=function(a){j=a},
+    this.setLinkLength=function(a){k=a}}
+</script>
+<script>
+    function initColor(nodes, links){//传进来的值可以改变
+        var colors = d3.scale.category20()
+        for(var i=0, n=1;i<nodes.length;i++,n++){
+            if(nodes[i].position == 'movie'){
+                nodes[i].color = colors(n%20+1)
+            }
+            else{
+                nodes[i].color = colors(i%20+1)
+            }
+        }
+
+        for(var j = 0;j<links.length;j++){
+            var id = nodes[links[j].source].position == 'movies'? links[j].target:links[j].source;
+            var mid = nodes[links[j].source].position == 'movies'? links[j].source:links[j].target;
+            // t = d3.color(nodes[mid].color)
+            // nodes[id].color = t.brighter(1.5).toString()
+            if(nodes[id].position == 'director'){
+                nodes[id].color = "#00A0E9"
+            }
+        }
+        nodes[0].color = "#fff100"
+    }
+    function initRadius(nodes){
+        for(var i=0;i<nodes.length;i++){
+            if(nodes[i].position == 'movie'){
+                nodes[i].radius = 16
+            }
+            else{
+                nodes[i].radius = 10
+            }
+        }
+        nodes[0].radius = 10
+    }
+    var canvas=document.querySelector("canvas"),width=1300,height=600;
+    // nodes = {{nodes}};
+    // links = {{links}};
+    nodes = [{'id': 0, 'name': '周迅', 'position': 'actor'}, {'id': 1, 'name': '明月几时有', 'position': 'movie'}, {'id': 3, 'name': '王菀之', 'position': 'actor'}, {'id': 4, 'name': '许鞍华', 'position': 'director'}, {'id': 5, 'name': '霍建华', 'position': 'actor'}, {'id': 6, 'name': '彭于晏', 'position': 'actor'}, {'id': 7, 'name': '叶德娴', 'position': 'actor'}, {'id': 8, 'name': '郭涛', 'position': 'actor'}, {'id': 9, 'name': '春夏', 'position': 'actor'}];
+    links = [{'source': 0, 'target': 1}, {'source': 1, 'target': 3}, {'source': 1, 'target': 4}, {'source': 1, 'target': 5}, {'source': 1, 'target': 6}, {'source': 1, 'target': 7}, {'source': 1, 'target': 8}, {'source': 1, 'target': 9}];
+
+    o = nodes;
+    i = links;
+
+    initColor(o, i),initRadius(o);
+    var s=new relation;
+    s.setNodes(o),s.setLinks(i),s.setCanvas(canvas),
+    s.setSize(width,height),s.setRadius(12),s.setLinkLength(90),s.setCharge(-25),
+    s.init(),s.run();
+</script>
+</body>
+</html>

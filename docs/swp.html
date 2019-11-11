@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>swp</title>
+    <style>
+        html{
+            overflow:hidden;
+        }
+        #canvas-frame {
+            position:absolute;
+            width: 100vw;
+            height: 100vh;
+        }
+        /* #interaction{
+            position:absolute;
+            left:80vw;
+            top:5vh;
+            width: 20vw;
+            height: 20vh;
+            z-index: 10;
+	        font-size: 30px;
+        } */
+    </style>
+</head>
+<body>
+    <div id="canvas-frame"></div>
+    <!-- <div id="interaction">
+        <p id="year"></p>
+        <p id="screenNum"></p>
+    </div> -->
+	
+    <script src="./static/js/support/three.js" ></script>
+    <script src="./static/js/support/d3.v4.min.js"></script>
+    
+    <script src="./static/js/support/OrbitControls.js" ></script>
+    <!-- <script src="./static/js/objSelection.js"></script> -->
+   
+    <script type="text/javascript">
+        // var data = [{name:'2012', length: 13118},
+        //             {name:'2013', length: 18195},
+        //             {name:'2014', length: 23592},
+        //             {name:'2015', length: 31627},
+        //             {name:'2016', length: 41056},
+        //             {name:'2017', length: 50776},
+        //             {name:'2018', length: 60079}];
+        // var color = d3.interpolate(d3.color('#FFCF71'), d3.color('#2376DD'));//d3颜色插值函数，渐变色
+
+        var threeDiv = document.getElementById( 'canvas-frame' );
+        var renderer = new THREE.WebGLRenderer( {antialias: true, alpha: true} );
+        renderer.setClearColor( 0xffffff, 0 );
+
+        var width = threeDiv.clientWidth;
+        var height = threeDiv.clientHeight;
+        renderer.setSize(width, height);
+        threeDiv.appendChild(renderer.domElement);
+
+        var scene = new THREE.Scene();
+
+        var group = new THREE.Object3D();
+        scene.add(this.group);
+
+        scene.userData.element = threeDiv;
+
+        var camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
+        camera.position.x = 0;
+        camera.position.y = 0;
+        camera.position.z = 300;
+        camera.lookAt(group.position);
+        scene.add(camera);
+        scene.userData.camera = camera;
+
+        var light = new THREE.DirectionalLight(0xffffff, 1.0, 0);
+        light.position.set(-100, 500, 200);
+        scene.add(light);
+
+        var aLight = new THREE.AmbientLight( 0xaaaaaa );
+        scene.add( aLight );
+
+        var orbitControls = new THREE.OrbitControls(scene.userData.camera, scene.userData.element);
+        orbitControls.target = group.position;//控制焦点
+        orbitControls.autoRotate = false;//自动旋转
+        scene.userData.controls = orbitControls;
+
+        //三种协议：sw、gbw、sr
+        // 字节数
+        //窗口大小、源、目的
+        //发送的每个包的计时器
+        //传播时间
+        //发送、确认、错误
+
+        //窗口移动
+        var data = {
+            'protocol':'sw',
+            'seqNum': 10,
+            'wSrc': 5,
+            'wDst':1,
+            'eeDelay':5000,
+            'timeout':11000,
+            'timePerSend':2000
+        };
+
+        var srcSites = new Array();
+        var dstSites = new Array();
+        for(let i=0; i<data.seqNum; i++){
+            let sphere_geometry = new THREE.SphereGeometry(10, 6, 6);
+            let sphere_material = new THREE.MeshPhongMaterial({
+                color: 0xff0000,
+                transparent: true,
+                opacity: 0.8,
+                wireframe: true
+            });
+            let sphere1 = new THREE.Mesh(sphere_geometry, sphere_material);
+            sphere1.position.set(22*(i-data.seqNum/2), 100, 0);
+            group.add(sphere1);
+            srcSites.push(sphere1);
+
+            let sphere2 = new THREE.Mesh(sphere_geometry, sphere_material);
+            sphere2.position.set(22*(i-data.seqNum/2), -100, 0);
+            group.add(sphere2);
+            dstSites.push(sphere2);
+        }
+
+        var temp = new Date();
+
+        // initGrid();
+        // initObject();
+        // var object_selection;
+        // ObjectSelection();
+        render();
+
+        function createLine(obj0, obj1, radius){
+            var positions = [];
+            positions.push(obj0.position);
+
+            // var midVector = obj0.position.clone().add(obj1.position.clone());
+            // if(midVector.length () > radius*1.5){
+            //     midVector.multiplyScalar(0.8);
+            // }
+            // positions.push(midVector);
+            
+            positions.push(obj1.position);
+            
+            var curve = new THREE.CatmullRomCurve3( positions );//Create a smooth 3d spline curve from a series of points
+            //https://threejs.org/docs/#api/en/extras/curves/CatmullRomCurve3
+
+            lightMove(curve);
+
+            // var points = curve.getPoints( 50 );//从曲线中取出position，细分数为20
+            // var geometry = new THREE.BufferGeometry().setFromPoints( points );
+
+            // var material = new THREE.LineBasicMaterial( { color : 0x2376DD } );
+            // var curveObject = new THREE.Line( geometry, material );
+            // scene.add(curveObject);
+        }
+
+        function lightMove(curve){
+            var that = this;
+            var pointGeometry = new THREE.SphereGeometry(10, 20, 20);
+            var pointMaterial = new THREE.MeshBasicMaterial({color: 0xFFCF71});
+
+            addLightPoint();
+            function addLightPoint() {
+                var index = 0;
+                var pointMesh = new THREE.Mesh(pointGeometry, pointMaterial);
+
+                pointMesh.position.copy(curve.getPointAt(index));
+                that.scene.add(pointMesh);
+
+                function pointAnimate() {
+                    index+=0.005;
+                    // if(index>= 1) {
+                    //     index = 0;
+                    // }
+                    pointMesh.position.copy(curve.getPointAt(index));
+                    requestAnimationFrame(pointAnimate);
+                }
+                pointAnimate();
+            }
+
+        }
+
+        function initGrid(){
+            //平面
+            var gridXZ = new THREE.GridHelper(200, 10, 0xa23131, 0xa23131);//4个参数分别是：网格宽度、等分数、中心线颜色，网格线颜色
+            gridXZ.position.set( 0,0,0 );
+            gridXZ.material.linewidth = 10;
+            scene.add(gridXZ);
+        }
+
+
+        function render()
+        {
+            scene.userData.controls.update();
+            // object_selection.render(group, scene.userData.camera);
+            renderer.render(scene, scene.userData.camera);
+            requestAnimationFrame(render);
+
+            if(new Date().getSeconds() - temp.getSeconds() >1){
+                createLine(srcSites[0], dstSites[0], 100);
+                temp = new Date();
+                
+            }
+
+        }
+
+        function initObject(){
+            let sphere_geometry = new THREE.SphereGeometry(7, 30, 30);
+            let sphere_material = new THREE.MeshPhongMaterial({
+                            color: that.colorD3(index/20),//that.color(Math.random()),Math.floor(Math.random()*10)
+                            transparent: true,
+                            opacity: 0.8,
+                            // wireframe: true
+                        });
+            if (value.data.post == '1') {
+                sphere_material.color = new THREE.Color( 0xfab95b );
+            }
+            if (value.data.post == '2') {
+                sphere_material.color = new THREE.Color( 0x5ca0d3 );
+            }
+            let sphere = new THREE.Mesh(sphere_geometry, sphere_material);
+            that.group.add(sphere);//改
+                                 
+                        
+            var linear = d3.scaleLinear()
+                            .domain([10000, 70000])
+                            .range([0, 140]);
+            for(var i in data) {
+                var material = new THREE.MeshBasicMaterial( {
+                    color: color(linear(data[i].length)/150),
+                    opacity: 1
+                });
+                var cylinder = new THREE.CylinderGeometry(10, 10, linear(data[i].length));
+                var mesh = new THREE.Mesh(cylinder, material);
+                mesh.userData.length = data[i].length;
+                mesh.material.wireframe = true;
+                mesh.userData.name = data[i].name;
+                mesh.userData.num = data[i].length;
+
+                group.add(mesh);
+
+                data[i].length = Math.ceil(linear(data[i].length));
+
+            }
+        }
+
+
+        function ObjectSelection(){
+            object_selection = new THREE.ObjectSelection({//个人封装的js，three.js官方库中无
+                domElement: scene.userData.element,//渲染区域
+                selected: function(selectObj) {//selectObj为选取返回对象
+                    // 显示信息，此处为个性化处理，该函数会作为传入objsel.js中作为处理函数
+                    if(selectObj !== null) {//判断是否为空，objsel.js中有对应
+                        var meshObj = selectObj.object;
+                        meshObj.material.color = new THREE.Color("rgb(220,76,65)");
+
+                        document.getElementById('year').textContent = meshObj.userData.name + ' 年度';
+                        document.getElementById('screenNum').textContent = meshObj.userData.num +' 块屏';
+                    }
+                },
+                clicked: function(selectObj) {//点击事件
+                    if(selectObj !== null) {
+
+                  }
+                },
+                mousedown: function(selectObj) {//点击事件
+                    if(selectObj !== null) {
+                        
+                  }
+                },
+                mouseup: function(selectObj) {//点击事件
+                   if(selectObj !== null) {
+                        
+                  }
+                }
+              });
+        }
+    </script>
+
+</body>
+</html>
