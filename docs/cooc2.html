@@ -5,7 +5,7 @@
     <title>词共现</title>
     <style>
         svg{
-            margin-top: 5vh;
+            /*margin-top: 5vh;*/
             /*margin-left:10vw;*/
             /*width: 90vh;*/
             /*height: 90vh;*/
@@ -109,14 +109,14 @@
     <script src="https://d3js.org/d3.v3.min.js"></script>
 </head>
 <body>
-<a href="https://mesmerxx.github.io/docs/cooc1.html" class="button"><i >静</i></a>
+<a href="https://mesmerxx.github.io/docs/cooc.html" class="button"><i>静</i></a>
 <script>
     var height = document.body.clientHeight||document.documentElement.clientHeight *0.9;
     var width = document.body.clientWidth||document.documentElement.clientWidth ;
 
     var force = d3.layout.force()
-        .gravity(.1)
-        .charge(-1000)
+        .gravity(.2)
+        .charge(-2000)
         .linkStrength(1)
         .size([width, height]);
 
@@ -149,7 +149,7 @@
         // }
     });
 
-    let scale_link = d3.scale.linear().domain([1,1.2]).range([2,12])
+    let scale_link = d3.scale.linear().domain([1,1.2]).range([20,40])
 
     force.nodes(nodes)
         .links(links)
