@@ -316,7 +316,7 @@
                 x1 = d.target.x;
             }
 
-            return (0.8*r*(x1-x2))/r +x2;
+            return (0.75*r*(x1-x2))/r +x2;
 
             })
             .attr("y", function(d) {
@@ -331,7 +331,7 @@
                     y1 = d.target.y;
                 }
 
-                return (0.8*r*(y1-y2))/r +y2;
+                return (0.75*r*(y1-y2))/r +y2;
             });
 
         node.attr("cx", function(d) { return d.x; })
