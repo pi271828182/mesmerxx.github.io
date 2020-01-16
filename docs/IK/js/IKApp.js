@@ -31,7 +31,7 @@ class IKApp {
     this.scene.background = new THREE.Color(0xeeeeee);
 
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 100);
-    this.camera.position.set(12, 5, 20);
+    this.camera.position.set(12, 12, 20);
     this.camera.lookAt(this.scene.position);
 
     this.scene.add(new THREE.AmbientLight(0xffffff, 0.8));
