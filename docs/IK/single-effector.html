@@ -12,24 +12,73 @@
                 margin: 0px;
                 overflow: hidden;
             }
-            #info {
-                color: #fff;
-                position: absolute;
-                top: 10px;
-                width: 100%;
-                text-align: center;
-                z-index: 100;
-                display:block;
+
+            .A{
+                position: fixed;
+                top:20px;
+                left: 20px;
             }
-            #info a {
-                color: #046;
-                font-weight: bold;
+
+            .B{
+                position: fixed;
+                top:20px;
+                left: 100px;
             }
+
+            .C{
+                position: fixed;
+                top:20px;
+                left: 180px;
+            }
+
+            .now{
+                color: #9d0b0b;
+            }
+
+            .button{
+
+            color: #9e9e9e;
+            font-weight: 300;
+            font-family: "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+            box-sizing: border-box;
+            transition-property: all;
+            transition-duration: .3s;
+            background-color: #FEAE1B;
+            border-color: #FEAE1B;
+            font-size: 20px;
+
+
+
+            border-radius: 100%;
+            padding: 0 !important;
+            font-size: 20px;
+            height: 50px;
+            line-height: 50px;
+            margin: 5px;
+            width: 50px;
+
+        }
+
+
+        a:hover{
+            opacity: 0.7;
+            /*background:#dddddd;*/
+            display:block;
+        }
         </style>
     </head>
 
     <body>
-        <div></div>
+        <a href="https://mesmerxx.github.io/docs/IK/single-effector.html" class="A button"><i class="now">single effector</i></a>
+
+        <a href="https://mesmerxx.github.io/docs/IK/single-target.html" class="B button"><i>single target</i></a>
+        <a href="https://mesmerxx.github.io/docs/IK/multi-effector.html" class="C button"><i>multi effector</i></a>
+
         <script src="js/dat.gui.js"></script>
         <script src="js/three/three.js"></script>
         <script src="js/three/controls/TransformControls.js"></script>
