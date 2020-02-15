@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$USER_HOME$/code/movie2017/.idea/flasky.iml" filepath="$USER_HOME$/code/movie2017/.idea/flasky.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../three.js-master/examples/models/json/.idea/json.iml" filepath="$PROJECT_DIR$/../three.js-master/examples/models/json/.idea/json.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/mesmerxx.github.io.iml" filepath="$PROJECT_DIR$/.idea/mesmerxx.github.io.iml" />
       <module fileurl="file://$USER_HOME$/code/tinyTool/.idea/tinyTool.iml" filepath="$USER_HOME$/code/tinyTool/.idea/tinyTool.iml" />
-      <module fileurl="file://$USER_HOME$/task/微博爬虫/.idea/微博爬虫.iml" filepath="$USER_HOME$/task/微博爬虫/.idea/微博爬虫.iml" />
     </modules>
   </component>
 </project>

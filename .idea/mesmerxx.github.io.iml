@@ -5,9 +5,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="tinyTool" />
-    <orderEntry type="module" module-name="json" />
-    <orderEntry type="module" module-name="微博爬虫" />
-    <orderEntry type="module" module-name="flasky" />
   </component>
   <component name="TestRunnerService">
     <option name="projectConfiguration" value="Twisted Trial" />

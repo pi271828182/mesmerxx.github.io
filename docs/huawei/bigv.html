@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>hw</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+
+    <style>
+        .title-board{
+            position: fixed;
+            z-index: 2;
+            border: #00A0E9 solid 1.5px;
+            height: 220px;
+            width: 220px;
+            font-size: 20px;
+            padding: 20px;
+        }
+        .selected{
+            color: #00A0E9;
+
+        }
+        a {
+          color: #151515;
+          text-decoration: none;
+        }
+
+        a:hover {
+            /*border-bottom: 2px solid #151515;*/
+            text-decoration: none;
+            color: #00A0E9;
+        }
+
+        svg{
+            /*margin-top: 5vh;*/
+            /*margin-left:10vw;*/
+            /*width: 90vh;*/
+            /*height: 90vh;*/
+        }
+        .node {
+            fill: #fff;
+            stroke: steelblue;
+            stroke-width: 1.5px;
+            opacity: 1;
+        }
+        .node {
+            font: 10px sans-serif;
+        }
+        svg line {
+            fill: none;
+            stroke: #000000;
+            /*stroke: #ffaa64;*/
+            stroke-width: 1.5px;
+        }
+
+        .hideLink{
+            opacity: 0;
+            stroke-width: 0.1px;
+        }
+        .normalLink{
+            opacity: 0.8;
+            stroke-width: 1px;
+        }
+        .nodeText{
+            font-size: 10px;
+            font-family: Arctic;
+            font-weight: bolder;
+            line-height: 1;
+            fill:#2e405b;
+            /*fill:#00A0E9;*/
+            font-family: 'Helvetica';
+
+            -webkit-transition: color 0.3s ease 0s, background-color 0.3s ease 0s;
+            /*font-family: "Source Sans Pro","Roboto","Helvetica","Helvetica Neue","Source Han Sans SC","Source Han Sans TC","PingFang SC","PingFang HK","PingFang TC",sans-serif;*/
+
+        }
+        .lineText{
+            font-size: 10px;
+            font-weight: bolder;
+            font-family: 'Helvetica';
+
+            /*font-family: "Source Sans Pro","Roboto","Helvetica","Helvetica Neue","Source Han Sans SC","Source Han Sans TC","PingFang SC","PingFang HK","PingFang TC",sans-serif;*/
+            visibility: hidden;
+            fill: #00A0E9;
+        }
+
+        .linkedLine{
+            stroke: #00A0E9;
+        }
+        .linkedNode{
+            fill: #00A0E9;
+            stroke: #00A0E9;
+        }
+
+        .button{
+            position: fixed;
+            top:5vh;
+            left: 90vw;
+
+            font-weight: 300;
+            font-family: "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+            box-sizing: border-box;
+            transition-property: all;
+            transition-duration: .3s;
+            background-color: #FEAE1B;
+            border-color: #FEAE1B;
+            font-size: 20px;
+
+            color: #FFF;
+
+            border-radius: 100%;
+            padding: 0 !important;
+            font-size: 20px;
+            height: 50px;
+            line-height: 50px;
+            margin: 5px;
+            width: 50px;
+
+        }
+
+        .button-circle{
+
+        }
+        a:hover{
+            opacity: 0.7;
+            /*background:#dddddd;*/
+            display:block;
+        }
+
+    </style>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+</head>
+<body>
+<div class="title-board">
+    <p ><a href="media-ch.html">中国媒体属性</a></p>
+    <p><a href="media-usa.html">美国媒体属性</a></p>
+    <p><a href="bigv.html" class="selected">大V属性</a></p>
+    <p><a href="normaluser.html">普通用户属性</a></p>
+
+
+<!--<div class="container-fluid">-->
+<!--    <div class="row board">-->
+<!--        <div class="col-2 title-board align-items-center">-->
+<!--          <h1>中国相关</h1>-->
+<!--        </div>-->
+<!--        <div class="col-8 sub-board" id="board-1">-->
+
+<!--        </div>-->
+
+<!--  </div>-->
+
+</div>
+<script>
+    var height = document.body.clientHeight||document.documentElement.clientHeight *0.9;
+    var width = document.body.clientWidth||document.documentElement.clientWidth ;
+
+    // height = document.getElementById('board-1').clientHeight;
+    // width = document.getElementById('board-1').clientWidth;
+
+    var force = d3.layout.force()
+        .gravity(0.8)
+        .charge(-5000)
+        .linkStrength(1)
+        .size([width, height]);
+
+    var svg = d3.select("body").append("svg:svg")
+        .attr("width", width)
+        .attr("height", height);
+
+
+    var nodes = [{'id': 0, 'name': '威胁国家安全'}, {'id': 1, 'name': '华为技术有限公司'}, {'id': 2, 'name': '华为禁令'}, {'id': 3, 'name': '盟国'}, {'id': 4, 'name': '中国监视'}, {'id': 5, 'name': '华为裁员'}, {'id': 6, 'name': '90天临时许可'}, {'id': 7, 'name': '中美贸易战'}, {'id': 8, 'name': '挑战美国法律'}, {'id': 9, 'name': '谈判筹码'}, {'id': 10, 'name': '孟晚舟'}, {'id': 11, 'name': '科技冷战'}, {'id': 12, 'name': '帮助朝鲜'}, {'id': 13, 'name': 'IEEE禁令'}, {'id': 14, 'name': '盗窃知识产权'}, {'id': 15, 'name': '中国政府补贴'}, {'id': 16, 'name': '政治'}, {'id': 17, 'name': '华为麒麟芯片'}, {'id': 18, 'name': '华为专利'}, {'id': 19, 'name': '挑战美国硅谷地位'}, {'id': 20, 'name': '稀土资源'}, {'id': 21, 'name': '美国主导地位'}, {'id': 22, 'name': '5G技术'}, {'id': 23, 'name': '限制情报共享'}, {'id': 24, 'name': '禁令代价'}, {'id': 25, 'name': '华为合作'}, {'id': 26, 'name': '美国游说'}, {'id': 27, 'name': '唐纳德•特朗普'}, {'id': 28, 'name': '中国情报法'}, {'id': 29, 'name': '科技霸权'}, {'id': 30, 'name': '中国报复'}, {'id': 31, 'name': '联邦快递错运'}, {'id': 32, 'name': '美国供应商'}, {'id': 33, 'name': '中国抵制'}, {'id': 34, 'name': '中加关系'}, {'id': 35, 'name': '蓬佩奥'}, {'id': 36, 'name': '支持华为'}]
+
+    var links = [{'source': 0, 'target': 1, 'value': 132}, {'source': 0, 'target': 3, 'value': 11}, {'source': 0, 'target': 4, 'value': 70}, {'source': 0, 'target': 5, 'value': 1}, {'source': 0, 'target': 6, 'value': 11}, {'source': 0, 'target': 8, 'value': 19}, {'source': 0, 'target': 9, 'value': 1}, {'source': 0, 'target': 10, 'value': 1}, {'source': 0, 'target': 11, 'value': 2}, {'source': 0, 'target': 12, 'value': 1}, {'source': 0, 'target': 14, 'value': 2}, {'source': 0, 'target': 16, 'value': 1}, {'source': 0, 'target': 17, 'value': 5}, {'source': 0, 'target': 21, 'value': 4}, {'source': 0, 'target': 22, 'value': 17}, {'source': 0, 'target': 23, 'value': 4}, {'source': 0, 'target': 24, 'value': 2}, {'source': 0, 'target': 26, 'value': 9}, {'source': 0, 'target': 27, 'value': 44}, {'source': 0, 'target': 32, 'value': 8}, {'source': 0, 'target': 34, 'value': 5}, {'source': 0, 'target': 35, 'value': 4}, {'source': 0, 'target': 36, 'value': 1}, {'source': 1, 'target': 0, 'value': 132}, {'source': 1, 'target': 2, 'value': 35}, {'source': 1, 'target': 3, 'value': 54}, {'source': 1, 'target': 4, 'value': 429}, {'source': 1, 'target': 5, 'value': 18}, {'source': 1, 'target': 6, 'value': 28}, {'source': 1, 'target': 7, 'value': 1}, {'source': 1, 'target': 8, 'value': 147}, {'source': 1, 'target': 9, 'value': 20}, {'source': 1, 'target': 10, 'value': 134}, {'source': 1, 'target': 11, 'value': 43}, {'source': 1, 'target': 12, 'value': 8}, {'source': 1, 'target': 13, 'value': 1}, {'source': 1, 'target': 14, 'value': 20}, {'source': 1, 'target': 15, 'value': 1}, {'source': 1, 'target': 16, 'value': 3}, {'source': 1, 'target': 17, 'value': 18}, {'source': 1, 'target': 19, 'value': 8}, {'source': 1, 'target': 20, 'value': 1}, {'source': 1, 'target': 21, 'value': 11}, {'source': 1, 'target': 22, 'value': 86}, {'source': 1, 'target': 23, 'value': 14}, {'source': 1, 'target': 24, 'value': 33}, {'source': 1, 'target': 26, 'value': 14}, {'source': 1, 'target': 27, 'value': 274}, {'source': 1, 'target': 29, 'value': 1}, {'source': 1, 'target': 30, 'value': 1}, {'source': 1, 'target': 31, 'value': 15}, {'source': 1, 'target': 32, 'value': 100}, {'source': 1, 'target': 34, 'value': 71}, {'source': 1, 'target': 35, 'value': 14}, {'source': 1, 'target': 36, 'value': 4}, {'source': 2, 'target': 1, 'value': 35}, {'source': 2, 'target': 3, 'value': 3}, {'source': 2, 'target': 4, 'value': 21}, {'source': 2, 'target': 8, 'value': 12}, {'source': 2, 'target': 11, 'value': 2}, {'source': 2, 'target': 17, 'value': 1}, {'source': 2, 'target': 22, 'value': 1}, {'source': 2, 'target': 24, 'value': 3}, {'source': 2, 'target': 27, 'value': 29}, {'source': 2, 'target': 30, 'value': 1}, {'source': 2, 'target': 32, 'value': 16}, {'source': 2, 'target': 34, 'value': 1}, {'source': 3, 'target': 0, 'value': 11}, {'source': 3, 'target': 1, 'value': 54}, {'source': 3, 'target': 2, 'value': 3}, {'source': 3, 'target': 4, 'value': 33}, {'source': 3, 'target': 8, 'value': 14}, {'source': 3, 'target': 9, 'value': 1}, {'source': 3, 'target': 11, 'value': 1}, {'source': 3, 'target': 13, 'value': 1}, {'source': 3, 'target': 21, 'value': 1}, {'source': 3, 'target': 22, 'value': 9}, {'source': 3, 'target': 23, 'value': 3}, {'source': 3, 'target': 27, 'value': 15}, {'source': 3, 'target': 32, 'value': 1}, {'source': 4, 'target': 0, 'value': 70}, {'source': 4, 'target': 1, 'value': 429}, {'source': 4, 'target': 2, 'value': 21}, {'source': 4, 'target': 3, 'value': 33}, {'source': 4, 'target': 5, 'value': 19}, {'source': 4, 'target': 6, 'value': 18}, {'source': 4, 'target': 7, 'value': 2}, {'source': 4, 'target': 8, 'value': 87}, {'source': 4, 'target': 9, 'value': 7}, {'source': 4, 'target': 10, 'value': 67}, {'source': 4, 'target': 11, 'value': 40}, {'source': 4, 'target': 12, 'value': 4}, {'source': 4, 'target': 13, 'value': 1}, {'source': 4, 'target': 14, 'value': 14}, {'source': 4, 'target': 15, 'value': 1}, {'source': 4, 'target': 16, 'value': 2}, {'source': 4, 'target': 17, 'value': 6}, {'source': 4, 'target': 19, 'value': 5}, {'source': 4, 'target': 20, 'value': 1}, {'source': 4, 'target': 21, 'value': 10}, {'source': 4, 'target': 22, 'value': 62}, {'source': 4, 'target': 23, 'value': 17}, {'source': 4, 'target': 24, 'value': 12}, {'source': 4, 'target': 26, 'value': 14}, {'source': 4, 'target': 27, 'value': 146}, {'source': 4, 'target': 29, 'value': 1}, {'source': 4, 'target': 30, 'value': 3}, {'source': 4, 'target': 31, 'value': 7}, {'source': 4, 'target': 32, 'value': 36}, {'source': 4, 'target': 34, 'value': 47}, {'source': 4, 'target': 35, 'value': 8}, {'source': 4, 'target': 36, 'value': 1}, {'source': 5, 'target': 0, 'value': 1}, {'source': 5, 'target': 1, 'value': 18}, {'source': 5, 'target': 4, 'value': 19}, {'source': 5, 'target': 8, 'value': 3}, {'source': 5, 'target': 11, 'value': 1}, {'source': 5, 'target': 14, 'value': 3}, {'source': 5, 'target': 22, 'value': 3}, {'source': 5, 'target': 23, 'value': 2}, {'source': 5, 'target': 27, 'value': 8}, {'source': 5, 'target': 32, 'value': 1}, {'source': 5, 'target': 36, 'value': 1}, {'source': 6, 'target': 0, 'value': 11}, {'source': 6, 'target': 1, 'value': 28}, {'source': 6, 'target': 4, 'value': 18}, {'source': 6, 'target': 7, 'value': 1}, {'source': 6, 'target': 8, 'value': 7}, {'source': 6, 'target': 11, 'value': 1}, {'source': 6, 'target': 12, 'value': 1}, {'source': 6, 'target': 22, 'value': 3}, {'source': 6, 'target': 23, 'value': 1}, {'source': 6, 'target': 26, 'value': 2}, {'source': 6, 'target': 27, 'value': 16}, {'source': 6, 'target': 32, 'value': 3}, {'source': 6, 'target': 34, 'value': 2}, {'source': 6, 'target': 35, 'value': 1}, {'source': 7, 'target': 1, 'value': 1}, {'source': 7, 'target': 4, 'value': 2}, {'source': 7, 'target': 6, 'value': 1}, {'source': 7, 'target': 11, 'value': 1}, {'source': 7, 'target': 22, 'value': 1}, {'source': 7, 'target': 27, 'value': 1}, {'source': 8, 'target': 0, 'value': 19}, {'source': 8, 'target': 1, 'value': 147}, {'source': 8, 'target': 2, 'value': 12}, {'source': 8, 'target': 3, 'value': 14}, {'source': 8, 'target': 4, 'value': 87}, {'source': 8, 'target': 5, 'value': 3}, {'source': 8, 'target': 6, 'value': 7}, {'source': 8, 'target': 9, 'value': 6}, {'source': 8, 'target': 10, 'value': 36}, {'source': 8, 'target': 11, 'value': 10}, {'source': 8, 'target': 14, 'value': 8}, {'source': 8, 'target': 15, 'value': 1}, {'source': 8, 'target': 16, 'value': 1}, {'source': 8, 'target': 17, 'value': 4}, {'source': 8, 'target': 18, 'value': 1}, {'source': 8, 'target': 19, 'value': 2}, {'source': 8, 'target': 21, 'value': 3}, {'source': 8, 'target': 22, 'value': 31}, {'source': 8, 'target': 23, 'value': 4}, {'source': 8, 'target': 24, 'value': 6}, {'source': 8, 'target': 26, 'value': 2}, {'source': 8, 'target': 27, 'value': 65}, {'source': 8, 'target': 30, 'value': 2}, {'source': 8, 'target': 31, 'value': 6}, {'source': 8, 'target': 32, 'value': 14}, {'source': 8, 'target': 34, 'value': 18}, {'source': 8, 'target': 35, 'value': 1}, {'source': 8, 'target': 36, 'value': 1}, {'source': 9, 'target': 0, 'value': 1}, {'source': 9, 'target': 1, 'value': 20}, {'source': 9, 'target': 3, 'value': 1}, {'source': 9, 'target': 4, 'value': 7}, {'source': 9, 'target': 8, 'value': 6}, {'source': 9, 'target': 15, 'value': 1}, {'source': 9, 'target': 17, 'value': 1}, {'source': 9, 'target': 19, 'value': 2}, {'source': 9, 'target': 22, 'value': 1}, {'source': 9, 'target': 24, 'value': 1}, {'source': 9, 'target': 27, 'value': 6}, {'source': 9, 'target': 29, 'value': 1}, {'source': 9, 'target': 32, 'value': 24}, {'source': 10, 'target': 0, 'value': 1}, {'source': 10, 'target': 1, 'value': 134}, {'source': 10, 'target': 4, 'value': 67}, {'source': 10, 'target': 8, 'value': 36}, {'source': 10, 'target': 11, 'value': 10}, {'source': 10, 'target': 12, 'value': 1}, {'source': 10, 'target': 14, 'value': 1}, {'source': 10, 'target': 16, 'value': 2}, {'source': 10, 'target': 17, 'value': 1}, {'source': 10, 'target': 21, 'value': 1}, {'source': 10, 'target': 22, 'value': 10}, {'source': 10, 'target': 24, 'value': 1}, {'source': 10, 'target': 26, 'value': 2}, {'source': 10, 'target': 27, 'value': 26}, {'source': 10, 'target': 31, 'value': 12}, {'source': 10, 'target': 32, 'value': 4}, {'source': 10, 'target': 34, 'value': 58}, {'source': 11, 'target': 0, 'value': 2}, {'source': 11, 'target': 1, 'value': 43}, {'source': 11, 'target': 2, 'value': 2}, {'source': 11, 'target': 3, 'value': 1}, {'source': 11, 'target': 4, 'value': 40}, {'source': 11, 'target': 5, 'value': 1}, {'source': 11, 'target': 6, 'value': 1}, {'source': 11, 'target': 7, 'value': 1}, {'source': 11, 'target': 8, 'value': 10}, {'source': 11, 'target': 10, 'value': 10}, {'source': 11, 'target': 17, 'value': 1}, {'source': 11, 'target': 22, 'value': 4}, {'source': 11, 'target': 24, 'value': 2}, {'source': 11, 'target': 27, 'value': 15}, {'source': 11, 'target': 32, 'value': 11}, {'source': 11, 'target': 34, 'value': 2}, {'source': 11, 'target': 35, 'value': 1}, {'source': 11, 'target': 36, 'value': 1}, {'source': 12, 'target': 0, 'value': 1}, {'source': 12, 'target': 1, 'value': 8}, {'source': 12, 'target': 4, 'value': 4}, {'source': 12, 'target': 6, 'value': 1}, {'source': 12, 'target': 10, 'value': 1}, {'source': 12, 'target': 27, 'value': 2}, {'source': 12, 'target': 34, 'value': 3}, {'source': 13, 'target': 1, 'value': 1}, {'source': 13, 'target': 3, 'value': 1}, {'source': 13, 'target': 4, 'value': 1}, {'source': 13, 'target': 27, 'value': 1}, {'source': 14, 'target': 0, 'value': 2}, {'source': 14, 'target': 1, 'value': 20}, {'source': 14, 'target': 4, 'value': 14}, {'source': 14, 'target': 5, 'value': 3}, {'source': 14, 'target': 8, 'value': 8}, {'source': 14, 'target': 10, 'value': 1}, {'source': 14, 'target': 16, 'value': 1}, {'source': 14, 'target': 17, 'value': 1}, {'source': 14, 'target': 22, 'value': 6}, {'source': 14, 'target': 24, 'value': 1}, {'source': 14, 'target': 31, 'value': 1}, {'source': 14, 'target': 32, 'value': 1}, {'source': 15, 'target': 1, 'value': 1}, {'source': 15, 'target': 4, 'value': 1}, {'source': 15, 'target': 8, 'value': 1}, {'source': 15, 'target': 9, 'value': 1}, {'source': 15, 'target': 32, 'value': 1}, {'source': 16, 'target': 0, 'value': 1}, {'source': 16, 'target': 1, 'value': 3}, {'source': 16, 'target': 4, 'value': 2}, {'source': 16, 'target': 8, 'value': 1}, {'source': 16, 'target': 10, 'value': 2}, {'source': 16, 'target': 14, 'value': 1}, {'source': 16, 'target': 27, 'value': 2}, {'source': 16, 'target': 32, 'value': 1}, {'source': 16, 'target': 34, 'value': 2}, {'source': 17, 'target': 0, 'value': 5}, {'source': 17, 'target': 1, 'value': 18}, {'source': 17, 'target': 2, 'value': 1}, {'source': 17, 'target': 4, 'value': 6}, {'source': 17, 'target': 8, 'value': 4}, {'source': 17, 'target': 9, 'value': 1}, {'source': 17, 'target': 10, 'value': 1}, {'source': 17, 'target': 11, 'value': 1}, {'source': 17, 'target': 14, 'value': 1}, {'source': 17, 'target': 19, 'value': 1}, {'source': 17, 'target': 21, 'value': 1}, {'source': 17, 'target': 22, 'value': 4}, {'source': 17, 'target': 23, 'value': 1}, {'source': 17, 'target': 24, 'value': 3}, {'source': 17, 'target': 26, 'value': 1}, {'source': 17, 'target': 27, 'value': 2}, {'source': 17, 'target': 32, 'value': 4}, {'source': 18, 'target': 8, 'value': 1}, {'source': 19, 'target': 1, 'value': 8}, {'source': 19, 'target': 4, 'value': 5}, {'source': 19, 'target': 8, 'value': 2}, {'source': 19, 'target': 9, 'value': 2}, {'source': 19, 'target': 17, 'value': 1}, {'source': 19, 'target': 22, 'value': 1}, {'source': 19, 'target': 27, 'value': 2}, {'source': 19, 'target': 32, 'value': 5}, {'source': 20, 'target': 1, 'value': 1}, {'source': 20, 'target': 4, 'value': 1}, {'source': 21, 'target': 0, 'value': 4}, {'source': 21, 'target': 1, 'value': 11}, {'source': 21, 'target': 3, 'value': 1}, {'source': 21, 'target': 4, 'value': 10}, {'source': 21, 'target': 8, 'value': 3}, {'source': 21, 'target': 10, 'value': 1}, {'source': 21, 'target': 17, 'value': 1}, {'source': 21, 'target': 22, 'value': 3}, {'source': 21, 'target': 27, 'value': 1}, {'source': 22, 'target': 0, 'value': 17}, {'source': 22, 'target': 1, 'value': 86}, {'source': 22, 'target': 2, 'value': 1}, {'source': 22, 'target': 3, 'value': 9}, {'source': 22, 'target': 4, 'value': 62}, {'source': 22, 'target': 5, 'value': 3}, {'source': 22, 'target': 6, 'value': 3}, {'source': 22, 'target': 7, 'value': 1}, {'source': 22, 'target': 8, 'value': 31}, {'source': 22, 'target': 9, 'value': 1}, {'source': 22, 'target': 10, 'value': 10}, {'source': 22, 'target': 11, 'value': 4}, {'source': 22, 'target': 14, 'value': 6}, {'source': 22, 'target': 17, 'value': 4}, {'source': 22, 'target': 19, 'value': 1}, {'source': 22, 'target': 21, 'value': 3}, {'source': 22, 'target': 23, 'value': 3}, {'source': 22, 'target': 24, 'value': 2}, {'source': 22, 'target': 27, 'value': 9}, {'source': 22, 'target': 30, 'value': 1}, {'source': 22, 'target': 31, 'value': 2}, {'source': 22, 'target': 32, 'value': 6}, {'source': 22, 'target': 34, 'value': 5}, {'source': 22, 'target': 35, 'value': 2}, {'source': 23, 'target': 0, 'value': 4}, {'source': 23, 'target': 1, 'value': 14}, {'source': 23, 'target': 3, 'value': 3}, {'source': 23, 'target': 4, 'value': 17}, {'source': 23, 'target': 5, 'value': 2}, {'source': 23, 'target': 6, 'value': 1}, {'source': 23, 'target': 8, 'value': 4}, {'source': 23, 'target': 17, 'value': 1}, {'source': 23, 'target': 22, 'value': 3}, {'source': 23, 'target': 26, 'value': 2}, {'source': 23, 'target': 27, 'value': 5}, {'source': 24, 'target': 0, 'value': 2}, {'source': 24, 'target': 1, 'value': 33}, {'source': 24, 'target': 2, 'value': 3}, {'source': 24, 'target': 4, 'value': 12}, {'source': 24, 'target': 8, 'value': 6}, {'source': 24, 'target': 9, 'value': 1}, {'source': 24, 'target': 10, 'value': 1}, {'source': 24, 'target': 11, 'value': 2}, {'source': 24, 'target': 14, 'value': 1}, {'source': 24, 'target': 17, 'value': 3}, {'source': 24, 'target': 22, 'value': 2}, {'source': 24, 'target': 27, 'value': 11}, {'source': 24, 'target': 32, 'value': 8}, {'source': 24, 'target': 35, 'value': 1}, {'source': 26, 'target': 0, 'value': 9}, {'source': 26, 'target': 1, 'value': 14}, {'source': 26, 'target': 4, 'value': 14}, {'source': 26, 'target': 6, 'value': 2}, {'source': 26, 'target': 8, 'value': 2}, {'source': 26, 'target': 10, 'value': 2}, {'source': 26, 'target': 17, 'value': 1}, {'source': 26, 'target': 23, 'value': 2}, {'source': 26, 'target': 27, 'value': 4}, {'source': 26, 'target': 32, 'value': 1}, {'source': 26, 'target': 34, 'value': 2}, {'source': 26, 'target': 35, 'value': 2}, {'source': 27, 'target': 0, 'value': 44}, {'source': 27, 'target': 1, 'value': 274}, {'source': 27, 'target': 2, 'value': 29}, {'source': 27, 'target': 3, 'value': 15}, {'source': 27, 'target': 4, 'value': 146}, {'source': 27, 'target': 5, 'value': 8}, {'source': 27, 'target': 6, 'value': 16}, {'source': 27, 'target': 7, 'value': 1}, {'source': 27, 'target': 8, 'value': 65}, {'source': 27, 'target': 9, 'value': 6}, {'source': 27, 'target': 10, 'value': 26}, {'source': 27, 'target': 11, 'value': 15}, {'source': 27, 'target': 12, 'value': 2}, {'source': 27, 'target': 13, 'value': 1}, {'source': 27, 'target': 16, 'value': 2}, {'source': 27, 'target': 17, 'value': 2}, {'source': 27, 'target': 19, 'value': 2}, {'source': 27, 'target': 21, 'value': 1}, {'source': 27, 'target': 22, 'value': 9}, {'source': 27, 'target': 23, 'value': 5}, {'source': 27, 'target': 24, 'value': 11}, {'source': 27, 'target': 26, 'value': 4}, {'source': 27, 'target': 30, 'value': 1}, {'source': 27, 'target': 31, 'value': 1}, {'source': 27, 'target': 32, 'value': 39}, {'source': 27, 'target': 34, 'value': 11}, {'source': 27, 'target': 35, 'value': 5}, {'source': 27, 'target': 36, 'value': 1}, {'source': 29, 'target': 1, 'value': 1}, {'source': 29, 'target': 4, 'value': 1}, {'source': 29, 'target': 9, 'value': 1}, {'source': 29, 'target': 32, 'value': 1}, {'source': 30, 'target': 1, 'value': 1}, {'source': 30, 'target': 2, 'value': 1}, {'source': 30, 'target': 4, 'value': 3}, {'source': 30, 'target': 8, 'value': 2}, {'source': 30, 'target': 22, 'value': 1}, {'source': 30, 'target': 27, 'value': 1}, {'source': 31, 'target': 1, 'value': 15}, {'source': 31, 'target': 4, 'value': 7}, {'source': 31, 'target': 8, 'value': 6}, {'source': 31, 'target': 10, 'value': 12}, {'source': 31, 'target': 14, 'value': 1}, {'source': 31, 'target': 22, 'value': 2}, {'source': 31, 'target': 27, 'value': 1}, {'source': 31, 'target': 34, 'value': 4}, {'source': 32, 'target': 0, 'value': 8}, {'source': 32, 'target': 1, 'value': 100}, {'source': 32, 'target': 2, 'value': 16}, {'source': 32, 'target': 3, 'value': 1}, {'source': 32, 'target': 4, 'value': 36}, {'source': 32, 'target': 5, 'value': 1}, {'source': 32, 'target': 6, 'value': 3}, {'source': 32, 'target': 8, 'value': 14}, {'source': 32, 'target': 9, 'value': 24}, {'source': 32, 'target': 10, 'value': 4}, {'source': 32, 'target': 11, 'value': 11}, {'source': 32, 'target': 14, 'value': 1}, {'source': 32, 'target': 15, 'value': 1}, {'source': 32, 'target': 16, 'value': 1}, {'source': 32, 'target': 17, 'value': 4}, {'source': 32, 'target': 19, 'value': 5}, {'source': 32, 'target': 22, 'value': 6}, {'source': 32, 'target': 24, 'value': 8}, {'source': 32, 'target': 26, 'value': 1}, {'source': 32, 'target': 27, 'value': 39}, {'source': 32, 'target': 29, 'value': 1}, {'source': 32, 'target': 36, 'value': 2}, {'source': 34, 'target': 0, 'value': 5}, {'source': 34, 'target': 1, 'value': 71}, {'source': 34, 'target': 2, 'value': 1}, {'source': 34, 'target': 4, 'value': 47}, {'source': 34, 'target': 6, 'value': 2}, {'source': 34, 'target': 8, 'value': 18}, {'source': 34, 'target': 10, 'value': 58}, {'source': 34, 'target': 11, 'value': 2}, {'source': 34, 'target': 12, 'value': 3}, {'source': 34, 'target': 16, 'value': 2}, {'source': 34, 'target': 22, 'value': 5}, {'source': 34, 'target': 26, 'value': 2}, {'source': 34, 'target': 27, 'value': 11}, {'source': 34, 'target': 31, 'value': 4}, {'source': 35, 'target': 0, 'value': 4}, {'source': 35, 'target': 1, 'value': 14}, {'source': 35, 'target': 4, 'value': 8}, {'source': 35, 'target': 6, 'value': 1}, {'source': 35, 'target': 8, 'value': 1}, {'source': 35, 'target': 11, 'value': 1}, {'source': 35, 'target': 22, 'value': 2}, {'source': 35, 'target': 24, 'value': 1}, {'source': 35, 'target': 26, 'value': 2}, {'source': 35, 'target': 27, 'value': 5}, {'source': 36, 'target': 0, 'value': 1}, {'source': 36, 'target': 1, 'value': 4}, {'source': 36, 'target': 4, 'value': 1}, {'source': 36, 'target': 5, 'value': 1}, {'source': 36, 'target': 8, 'value': 1}, {'source': 36, 'target': 11, 'value': 1}, {'source': 36, 'target': 27, 'value': 1}, {'source': 36, 'target': 32, 'value': 2}]
+
+
+
+
+    //判断节点间是否相连的前期准备
+    var linkedByIndex = {};
+    links.forEach(function(d) {
+        linkedByIndex[d.source + "," + d.target] = 1;
+        linkedByIndex[d.target + "," + d.source] = 1;
+    });
+    function neighboring(a, b) {
+      return linkedByIndex[a + "," + b];
+    }
+
+    //节点定位
+    nodes.forEach(function(d, i) {
+        d.x = 320*Math.cos(Math.PI/25*i - Math.PI/3)+width/2;
+        d.y = 320*Math.sin(Math.PI/25*i - Math.PI/3)+height/2;
+
+        // if(i<50){
+        //     d.fixed = true;
+        // }
+    });
+
+    // let scale_link = d3.scale.linear().domain([1,100]).range([60,200]);
+
+    force.nodes(nodes)
+        .links(links)
+        .distance(function (d) {
+            return d.value*2;
+        })
+        .start();
+
+    var link = svg.selectAll("line")
+        .data(links)
+       .enter()
+        .insert("svg:line")
+        .attr("class", function(d){
+            return 'normalLink'
+            // return d.position == 'hideLink' ? 'hideLine' : 'normalLink';
+        })
+        .attr("id", function (d, i) {
+            return "textPath" + i;
+        });
+
+
+    let scale = d3.scale.linear().domain([1,25]).range([4,12])
+    var node = svg.selectAll(".node")
+        .data(nodes)
+       .enter()
+        .append("svg:rect")
+        .attr('width', function (d) {
+            return 10;
+
+        })
+        .attr('height', function (d) {
+            return 10;
+
+        })
+        .attr("class", "node")
+        .classed("linkedNode", true)
+        .attr('id', function (d) {
+            return 'node'+ d.id;
+        })
+        .call(force.drag);
+
+
+    node.on("mouseover", function(d) {// 添加鼠标放在点上的事件
+
+        console.log(d);
+
+        // link.classed('linkedLine', function (o) {
+        //     return o.source.id === d.id || o.target.id === d.id ? true : false;
+        // });
+
+        link.style("opacity", function(o) {
+            return o.source.id === d.id || o.target.id === d.id ? 1 : 0;
+        });
+
+        // node.classed("linkedNode", function(o) {
+        //   return neighboring(d.id, o.id) ==1 || neighboring(o.id, d.id) == 1? true : false;
+        // });
+        //
+        node.style("opacity", function(o) {
+            return neighboring(d.id, o.id) ==1 || neighboring(o.id, d.id) == 1? 1 : 0;
+        });
+
+
+        d3.select(this)
+            // .classed("linkedNode", true)
+            .style("opacity", 1);
+
+        // lineTexts.style('visibility', function (o) {
+        //     return o.source.id === d.id || o.target.id === d.id ? 'visible' : 'hidden';
+        // });
+        //
+        nodeTexts.style('visibility', function(o) {
+              return neighboring(d.id, o.id) ==1 || neighboring(o.id, d.id) == 1? 'visible' : 'hidden';
+        });
+        let nodeId = this.getAttribute('id').length>5? this.getAttribute('id')[4]+this.getAttribute('id')[5]:this.getAttribute('id')[4];
+        d3.select('#nodeText' + nodeId)
+            .style('visibility', 'visible');
+
+
+    });
+    node.on("mousemove", function(d) {// 添加鼠标在点上移动的事件
+
+    });
+    node.on("mouseout", function() {// 添加鼠标从点上移开的事件
+        // link.classed('linkedLine', false);
+        link.style("opacity", 1);
+        // node.classed("linkedNode", false);
+        node.style("opacity", 1);
+        nodeTexts.style('visibility', 'visible');
+        // lineTexts.style('visibility', 'hidden');
+    });
+
+    var nodeTexts = svg.selectAll(".nodeText")
+        .data(nodes)
+        .enter()
+        .append("text")
+        // .attr("class", function (d) {
+        //     // return d.position == 't' ? 'tFont' : d.position == 's' ? 'sFont' : 'mFont' ;
+        // })
+        .classed('nodeText', true)
+        .attr('id', function (d) {
+            return 'nodeText'+ d.id;
+        })
+        .attr("dx", function (d, i) {
+            return Math.cos(Math.PI/25*i - Math.PI/3) > 0 ? '1em':'-1em';
+        })
+        .attr("dy", function (d, i) {
+            return Math.sin(Math.PI/25*i - Math.PI/3) > 0 ? '1em':'-1em';
+        })
+        .style("text-anchor", function (d, i) {
+            return Math.cos(Math.PI/26*i - Math.PI/3) > 0 ? 'start':'end';
+        })
+        .text(function(d) { return d.name; });
+
+    var lineTexts = svg.selectAll(".lineText")
+        .data(links)
+        .enter()
+        .append("text")
+        .classed('lineText', true)
+        .text(function(d) { return d.value.toFixed(2); });
+
+    force.on("tick", function(e) {
+
+        link.attr("x1", function(d) { return d.source.x; })
+            .attr("y1", function(d) { return d.source.y; })
+            .attr("x2", function(d) { return d.target.x; })
+            .attr("y2", function(d) { return d.target.y; });
+
+
+        lineTexts.attr("x", function(d, i) {
+            let r = Math.sqrt(Math.pow(d.source.x- d.target.x, 2) + Math.pow(d.source.y- d.target.y, 2));
+            let x1, x2;
+            if(Math.pow(d.source.x - width/2, 2) + Math.pow(d.source.y - height/2, 2) >= Math.pow(d.target.x - width/2, 2) + Math.pow(d.target.y - height/2, 2)){
+                x1 = d.source.x;
+                x2 = d.target.x;
+            }
+            else{
+                x2 = d.source.x;
+                x1 = d.target.x;
+            }
+
+            return (0.75*r*(x1-x2))/r +x2;
+
+            })
+            .attr("y", function(d) {
+                let r = Math.sqrt(Math.pow(d.source.x- d.target.x, 2) + Math.pow(d.source.y- d.target.y, 2));
+                let y1, y2;
+                if(Math.pow(d.source.x - width/2, 2) + Math.pow(d.source.y - height/2, 2) >= Math.pow(d.target.x - width/2, 2) + Math.pow(d.target.y - height/2, 2)){
+                    y1 = d.source.y;
+                    y2 = d.target.y;
+                }
+                else{
+                    y2 = d.source.y;
+                    y1 = d.target.y;
+                }
+
+                return (0.75*r*(y1-y2))/r +y2;
+            });
+
+        node.attr("x", function(d) { return d.x - 5; })
+            .attr("y", function(d) { return d.y - 5; });
+
+
+        nodeTexts.attr("x", function(d) { return d.x; })
+             .attr("y", function(d) { return d.y; });
+
+    });
+
+</script>
+</body>
+</html>
