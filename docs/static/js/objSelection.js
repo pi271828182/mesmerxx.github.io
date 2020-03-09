@@ -56,6 +56,7 @@ THREE.ObjectSelection = function(parameters) {
     var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
     var intersects = raycaster.intersectObject(scene, true);//把scene作为检测对象
 
+
     if( intersects.length > 0 ) {
       if ( this.INTERSECTED != intersects[ 0 ] ) {
         if ( this.INTERSECTED ) {//若此类中实例对象不是选取对象，则颜色值任不变
