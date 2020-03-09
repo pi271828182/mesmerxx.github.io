@@ -111,23 +111,23 @@
             for (let i = 0; i < axisPixelNum; i++){
                 for (let j = 0; j < axisPixelNum; j++){
                     for (let k = 0; k < axisPixelNum; k++){
-                        var geometry = new THREE.BoxBufferGeometry( 30, 30, 30 );
+                        var geometry = new THREE.BoxBufferGeometry( 2, 2, 2 );
                         var color = new THREE.Color( i/axisPixelNum, j/axisPixelNum, k/axisPixelNum );
                         var material = new THREE.MeshBasicMaterial( {
                             color: color,
-                            wireframe:true,
+                            // wireframe:true,
                         } );
                         var cube = new THREE.Mesh( geometry, material );
                         // scene.add( cube );
                         group.add(cube);
-                        cube.position.set(i, j, k)
+                        cube.position.set(i*10, j*10, k*10)
                     }
                 }
             }
             // group.rotateZ ( Math.PI/4 );
             // group.rotateY ( Math.PI/4 );
-            group.translateX(-axisPixelNum/2*5);
-            // group.translateZ(-axisPixelNum/2*5);
+            group.translateX(-axisPixelNum/2*10);
+            group.translateZ(-axisPixelNum/2*10);
 
 
             // var linear = d3.scaleLinear()
