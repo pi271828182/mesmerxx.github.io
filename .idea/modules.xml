@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/mesmerxx.github.io.iml" filepath="$PROJECT_DIR$/.idea/mesmerxx.github.io.iml" />
       <module fileurl="file://$PROJECT_DIR$/../three.js-master/.idea/three.js-master.iml" filepath="$PROJECT_DIR$/../three.js-master/.idea/three.js-master.iml" />
-      <module fileurl="file://$USER_HOME$/code/tinyTool/.idea/tinyTool.iml" filepath="$USER_HOME$/code/tinyTool/.idea/tinyTool.iml" />
     </modules>
   </component>
 </project>
